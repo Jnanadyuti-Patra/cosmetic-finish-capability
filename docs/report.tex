@@ -1,19 +1,44 @@
-\documentclass[11pt,a4paper]{report}
+\documentclass[11pt,a4paper]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=2.4cm,top=2.8cm,bottom=2.6cm]{geometry}
-\usepackage{graphicx}
-\usepackage{booktabs}
+
+% ==== TYPEFACE ============================================================
+% newtx is a Times clone. Times has a smaller x-height-to-width ratio than
+% Computer Modern, so it sets roughly 10 percent more text per line at the
+% same nominal point size, and it is the conventional face for engineering
+% reports. newtxmath keeps the mathematics matched to the text face, which
+% Computer Modern maths inside a Times document would not.
+% amsmath and amssymb must load BEFORE newtxmath. Both amssymb and newtxmath
+% define \Bbbk, so the second one to load raises "command already defined";
+% letting it relax first hands the definition to newtxmath cleanly.
 \usepackage{amsmath}
 \usepackage{amssymb}
+\let\Bbbk\relax
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+
+% microtype adjusts inter-character spacing and lets glyphs protrude very
+% slightly into the margin. It reduces the number of loose lines and
+% typically saves a page or two over a document this length.
+\usepackage{microtype}
+
+% ==== PAGE GEOMETRY =======================================================
+\usepackage[
+  a4paper,
+  left=2.05cm, right=2.05cm, top=2.1cm, bottom=1.9cm,
+  headsep=9pt, footskip=22pt
+]{geometry}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{float}
 \usepackage{array}
 \usepackage{longtable}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
-\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[font=small,labelfont=bf,skip=4pt]{caption}
 \usepackage{enumitem}
 \usepackage{mdframed}
 \usepackage[hidelinks]{hyperref}
@@ -30,53 +55,99 @@
 \newcommand{\nm}{\ensuremath{\,\mathrm{nm}}}
 \newcommand{\degC}{\ensuremath{^\circ\mathrm{C}}}
 
-% ==== report=style chapter and section headings ===========================
-\titleformat{\chapter}[hang]
-  {\normalfont\Large\bfseries\color{accent}}
-  {\thechapter.}{0.6em}{\Large}
-\titlespacing*{\chapter}{0pt}{0pt}{18pt}
-
+% ==== HEADING STYLE AND SPACING ===========================================
+% Headings sit close to the text they introduce. The default article spacing
+% leaves far more room above a heading than is needed to separate it.
 \titleformat{\section}[hang]
   {\normalfont\large\bfseries\color{accent}}
-  {\thesection}{0.6em}{}
+  {\thesection}{0.55em}{}
 \titleformat{\subsection}[hang]
-  {\normalfont\normalsize\bfseries}
-  {\thesubsection}{0.6em}{}
+  {\normalfont\normalsize\bfseries\color{accent}}
+  {\thesubsection}{0.55em}{}
+\titleformat{\subsubsection}[hang]
+  {\normalfont\normalsize\itshape}
+  {\thesubsubsection}{0.55em}{}
 
-% ==== running headers and footers =========================================
+\titlespacing*{\section}      {0pt}{11pt plus 2pt minus 2pt}{4pt}
+\titlespacing*{\subsection}   {0pt}{8pt  plus 2pt minus 2pt}{3pt}
+\titlespacing*{\subsubsection}{0pt}{6pt  plus 1pt minus 1pt}{2pt}
+
+% ==== FLOAT PLACEMENT =====================================================
+% Loosening these lets LaTeX put more on each page instead of pushing a
+% float to its own sparse page. The default textfraction of 0.2 in
+% particular forces a page break whenever a float would leave less than a
+% fifth of the page for text.
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.80}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+
+\setlength{\textfloatsep}{9pt plus 2pt minus 2pt}
+\setlength{\intextsep}{9pt plus 2pt minus 2pt}
+\setlength{\floatsep}{9pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{0pt}
+
+% ==== LISTS ===============================================================
+\setlist{topsep=3pt, itemsep=2pt, parsep=0pt, partopsep=0pt, leftmargin=1.4em}
+
+% ==== DISPLAY MATHS =======================================================
+% amsmath's defaults leave generous room around displayed equations. These
+% are still comfortable but noticeably tighter.
+\setlength{\abovedisplayskip}{6pt plus 2pt minus 2pt}
+\setlength{\belowdisplayskip}{6pt plus 2pt minus 2pt}
+\setlength{\abovedisplayshortskip}{3pt plus 2pt}
+\setlength{\belowdisplayshortskip}{4pt plus 2pt minus 2pt}
+
+% ==== TABLES ==============================================================
+\renewcommand{\arraystretch}{1.05}
+
+% ==== HEADERS AND FOOTERS =================================================
 \pagestyle{fancy}
 \fancyhf{}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
+\setlength{\headheight}{14pt}
 \fancyhead[L]{\small\itshape Predicting Colour Yield from Process Control Limits}
 \fancyhead[R]{\small\thepage}
 \fancyfoot[L]{\small Jnanadyuti Patra}
 \fancyfoot[R]{\small 18 September 2026}
-\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
 
-% ==== callout boxes ========================================================
+% ==== CALLOUT BOXES =======================================================
 \newmdenv[
   backgroundcolor=boxbg, linecolor=accent, linewidth=1.2pt,
   topline=false, bottomline=false, rightline=false,
-  innerleftmargin=10pt, innertopmargin=8pt, innerbottommargin=8pt,
-  skipabove=10pt, skipbelow=10pt
+  innerleftmargin=8pt, innerrightmargin=6pt,
+  innertopmargin=5pt, innerbottommargin=5pt,
+  skipabove=6pt, skipbelow=6pt
 ]{keypoint}
 
 \newmdenv[
   linecolor=rulegrey, linewidth=0.6pt,
-  innerleftmargin=9pt, innerrightmargin=9pt,
-  innertopmargin=7pt, innerbottommargin=7pt,
-  skipabove=9pt, skipbelow=9pt
+  innerleftmargin=8pt, innerrightmargin=8pt,
+  innertopmargin=5pt, innerbottommargin=5pt,
+  skipabove=6pt, skipbelow=6pt
 ]{defbox}
 
-% ==== a consistent "where:" symbol list ====================================
+% ==== SYMBOL DEFINITION LIST ==============================================
 \newenvironment{symlist}
-  {\vspace{-0.25em}\begin{list}{}{%
-    \setlength{\leftmargin}{2.6em}\setlength{\labelwidth}{2.2em}%
-    \setlength{\labelsep}{0.4em}\setlength{\itemsep}{2pt}%
-    \setlength{\parsep}{0pt}\setlength{\topsep}{4pt}%
+  {\vspace{-0.2em}\begin{list}{}{%
+    \setlength{\leftmargin}{2.4em}\setlength{\labelwidth}{2.0em}%
+    \setlength{\labelsep}{0.4em}\setlength{\itemsep}{1pt}%
+    \setlength{\parsep}{0pt}\setlength{\topsep}{3pt}%
     \renewcommand{\makelabel}[1]{##1\hfil}}}
   {\end{list}}
+
+% ==== TABLE OF CONTENTS ===================================================
+\usepackage{tocloft}
+\setlength{\cftbeforesecskip}{2pt}
+\setlength{\cftbeforesubsecskip}{1pt}
+\setlength{\cftbeforesubsubsecskip}{0pt}
+\renewcommand{\cftsecfont}{\bfseries}
+\renewcommand{\cftsecpagefont}{\bfseries}
 
 \begin{document}
 
@@ -85,11 +156,11 @@
 % ==========================================================================
 \begin{titlepage}
 \centering
-\vspace*{2.2cm}
+\vspace*{0.6cm}
 
 {\color{accent}\rule{\textwidth}{1.6pt}}
 
-\vspace{0.9cm}
+\vspace{0.7cm}
 {\Huge\bfseries Predicting Colour Yield\\[0.3em] from Process Control Limits\par}
 
 \vspace{0.7cm}
@@ -99,7 +170,7 @@ PVD thin film surface finishing\par}
 \vspace{0.5cm}
 {\color{accent}\rule{\textwidth}{1.6pt}}
 
-\vspace{2.2cm}
+\vspace{1.3cm}
 
 \begin{tabular}{@{}r@{\hspace{1.2em}}l@{}}
 \textbf{Author}            & Jnanadyuti Patra \\[0.4em]
@@ -110,7 +181,7 @@ PVD thin film surface finishing\par}
 \textbf{Status}            & Simulation only, no experimental validation \\
 \end{tabular}
 
-\vspace{2.6cm}
+\vspace{1.4cm}
 
 \begin{minipage}{0.86\textwidth}
 \small
@@ -120,6 +191,34 @@ consistent colour. Two industrial routes are modelled from first principles:
 anodizing with dyeing, and physical vapour deposition of thin films. The study
 quantifies, for each route, what fraction of parts fall inside a colour
 specification and which single process control most deserves investment.
+\end{minipage}
+
+\vspace{1.0cm}
+
+\begin{minipage}{0.86\textwidth}
+{\bfseries\color{accent} Key findings at a glance}
+\vspace{4pt}
+\hrule
+\vspace{6pt}
+\small
+\begin{tabular}{@{}p{8.6cm}r@{}}
+Yield of the PVD interference stack at realistic tolerances
+  & \textbf{56.4\,\%} \\[2pt]
+Colour capability index of that stack, \Cpk
+  & \textbf{$-0.018$} \\[2pt]
+Share of its colour variance caused by nitrogen stoichiometry alone
+  & \textbf{69.8\,\%} \\[2pt]
+Tightening of nitrogen control needed to reach $\Cpk = 1.33$
+  & \textbf{6.0$\times$} \\[2pt]
+Tightening of coating thickness control needed
+  & \textbf{none} \\[2pt]
+Anodizing yield with a black dye
+  & \textbf{100.0\,\%} \\[2pt]
+Anodizing yield with a blue dye, process held identical
+  & \textbf{77.7\,\%} \\
+\end{tabular}
+\vspace{6pt}
+\hrule
 \end{minipage}
 
 \vfill
@@ -133,11 +232,11 @@ accompanying code repository by a single command.}
 \pagenumbering{roman}
 \setcounter{page}{2}
 
-\chapter*{Executive Summary}
-\addcontentsline{toc}{chapter}{Executive Summary}
+\section*{Executive Summary}
+\addcontentsline{toc}{section}{Executive Summary}
 \markboth{Executive Summary}{}
 
-\section*{Background}
+\subsection*{Background}
 
 Products that must look identical, such as laptop lids, watch cases and phone
 frames, obtain their colour from a surface finishing process. Every such
@@ -146,7 +245,7 @@ dye becomes depleted, a gas flow controller reads slightly high. None of these
 is a fault. The question is whether the resulting colour still falls inside
 tolerance.
 
-\section*{What was done}
+\subsection*{What was done}
 
 A physics based computer model was built covering two finishing routes, and
 realistic process variation was pushed through it to predict colour yield. The
@@ -154,7 +253,7 @@ model runs the complete causal chain from a change in process setting, through
 the film that grows, to the light that film reflects, to the colour a human
 observer perceives, and finally to the fraction of parts that pass inspection.
 
-\section*{Principal findings}
+\subsection*{Principal findings}
 
 \begin{enumerate}[leftmargin=1.6em, itemsep=6pt]
 
@@ -188,7 +287,7 @@ for one route is of little use for the other.
 
 \end{enumerate}
 
-\section*{Recommendations}
+\subsection*{Recommendations}
 
 \begin{enumerate}[leftmargin=1.6em, itemsep=4pt]
 \item Assess cosmetic capability at the point of colour selection, before a
@@ -207,17 +306,14 @@ confirmed against physical samples.
 \noindent\rule{\textwidth}{0.4pt}
 
 \tableofcontents
-\listoffigures
-\listoftables
 
-\cleardoublepage
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
 % ==========================================================================
-\chapter{Purpose and Scope}
+\section{Purpose and Scope}
 
-\section{The problem this report addresses}
+\subsection{The problem this report addresses}
 
 Consider any anodized aluminium laptop or any coated stainless steel watch. It
 has a colour. Now consider that the factory produced a million of them, and
@@ -243,9 +339,9 @@ part that fails a \emph{cosmetic} check fails at the very end of the line,
 after all the value has been added, and in most cases it cannot be reworked.
 Cosmetic rejects are therefore disproportionately expensive.
 
-\section{Scope}
+\subsection{Scope}
 
-\subsection{Included in this study}
+\subsubsection{Included in this study}
 
 \begin{itemize}[leftmargin=1.4em, itemsep=2pt]
 \item Type II sulfuric acid anodizing of aluminium, followed by dyeing.
@@ -261,7 +357,7 @@ variation.
 capability target.
 \end{itemize}
 
-\subsection{Excluded from this study}
+\subsubsection{Excluded from this study}
 
 \begin{itemize}[leftmargin=1.4em, itemsep=2pt]
 \item Experimental validation. No physical coupons were produced or measured.
@@ -274,26 +370,26 @@ are treated here as held constant.
 within batch variation is modelled. Section~7.3 explains why this matters.
 \end{itemize}
 
-\section{How to read this report}
+\subsection{How to read this report}
 
-Chapter~2 explains the necessary background from first principles and assumes
+Section~2 explains the necessary background from first principles and assumes
 no prior knowledge of surface finishing, optics or statistics. Readers already
-familiar with the field may proceed directly to Chapter~3, which describes the
-model. Every equation in Chapter~3 is followed by a complete definition of its
-symbols, their units and their typical magnitudes. Chapter~4 records how the
-implementation was verified. Chapters~5 and~6 present and discuss the results.
-Chapter~7 states the limitations precisely, and Chapter~8 gives conclusions and
+familiar with the field may proceed directly to Section~3, which describes the
+model. Every equation in Section~3 is followed by a complete definition of its
+symbols, their units and their typical magnitudes. Section~4 records how the
+implementation was verified. Sections~5 and~6 present and discuss the results.
+Section~7 states the limitations precisely, and Section~8 gives conclusions and
 recommendations. A complete list of symbols appears in Appendix~A.
 
 % ==========================================================================
-\chapter{Background}
+\section{Background}
 
 This chapter builds up the four ideas the report depends upon: how anodizing
 works, how thin film coating works, how colour is measured numerically, and how
 process capability is measured. Each is presented without assuming prior
 exposure.
 
-\section{Anodizing}
+\subsection{Anodizing}
 
 Anodizing is an electrochemical process. An aluminium part is immersed in an
 acid bath, usually dilute sulfuric acid, and connected as the positive
@@ -321,7 +417,7 @@ anodizing, uses colder baths and higher voltages to produce thicker, denser and
 more wear resistant films.
 \end{defbox}
 
-\section{Physical vapour deposition}
+\subsection{Physical vapour deposition}
 
 Physical vapour deposition, abbreviated PVD, is a vacuum process. A solid metal
 target, commonly titanium, is vaporised by bombardment. The resulting vapour
@@ -335,7 +431,7 @@ coloured, which is why it is widely used on watch cases, taps and cutting
 tools.
 
 The colour of a PVD coating arises from two distinct mechanisms, and
-distinguishing them is essential to understanding the results in Chapter~5:
+distinguishing them is essential to understanding the results in Section~5:
 
 \begin{enumerate}[leftmargin=1.5em, itemsep=4pt]
 \item \textbf{Bulk absorption.} The nitride itself absorbs some wavelengths
@@ -351,9 +447,9 @@ mechanism depends strongly on layer \emph{thickness}, and it is the same effect
 that produces the colours in a soap bubble or an oil film on water.
 \end{enumerate}
 
-\section{Measuring colour numerically}
+\subsection{Measuring colour numerically}
 
-\subsection{The reflectance spectrum}
+\subsubsection{The reflectance spectrum}
 
 The most complete physical description of how a surface interacts with light is
 its \textbf{reflectance spectrum}, written $R(\lambda)$. This states, for each
@@ -364,7 +460,7 @@ An object appears red because its spectrum is high in the red region of the
 spectrum, around $650\nm$, and low elsewhere. Visible light spans roughly
 $380\nm$, which appears violet, to $780\nm$, which appears deep red.
 
-\subsection{From spectrum to perceived colour}
+\subsubsection{From spectrum to perceived colour}
 
 A spectrum is not itself a colour. Colour is a perception, and the human eye
 does not record the full spectrum. It contains three types of cone cell, each
@@ -378,7 +474,7 @@ the sensitivity of a standard human observer at each wavelength. Weighting a
 spectrum by these functions and summing produces three numbers called
 tristimulus values, from which every further colour calculation follows.
 
-\subsection{CIELAB}
+\subsubsection{CIELAB}
 
 Tristimulus values are not convenient for engineering because equal numerical
 differences do not correspond to equal visible differences. The CIELAB system
@@ -397,7 +493,7 @@ $b^*$ & \textbf{Blue to yellow axis}. Negative values are blue, positive values
 A saturated gold finish might be described as $L^* = 76$, $a^* = 4$, $b^* = 49$,
 meaning fairly light, very slightly red, and strongly yellow.
 
-\subsection{Colour difference}
+\subsubsection{Colour difference}
 
 To state whether two parts match, a single number is needed. The current
 international standard is \textbf{CIEDE2000}, written \dE. Its interpretation
@@ -416,9 +512,9 @@ $\dE > 5$     & Obviously different colours. \\
 
 This report uses $\dE \le 1.0$ as the colour specification throughout.
 
-\section{Measuring process capability}
+\subsection{Measuring process capability}
 
-\subsection{Why an average is not enough}
+\subsubsection{Why an average is not enough}
 
 Knowing that a process produces the correct colour \emph{on average} says
 nothing useful. What matters is the spread. A process centred perfectly in the
@@ -426,7 +522,7 @@ middle of its tolerance but with a very wide spread will produce many rejects,
 while a process slightly off centre but with a very tight spread may produce
 none.
 
-\subsection{The capability index}
+\subsubsection{The capability index}
 
 The capability index $\Cpk$ combines centring and spread into one number. It
 compares the distance from the process mean to the nearest specification limit
@@ -446,7 +542,7 @@ $\Cpk < 0$     & The process mean lies outside the specification limit
 \end{tabular}
 \end{defbox}
 
-\subsection{Design of experiments}
+\subsubsection{Design of experiments}
 
 Investigating several process settings by varying one at a time is inefficient
 and, more seriously, cannot detect \textbf{interactions}, meaning cases where
@@ -456,14 +552,14 @@ simultaneously according to a pattern chosen so that individual effects,
 curvature and interactions can all be separated from a modest number of runs.
 
 % ==========================================================================
-\chapter{Modelling Approach}
+\section{Modelling Approach}
 
 This chapter states the model completely. Every equation is followed by a
 definition of each symbol it contains, the units of that symbol, and where
 useful a typical magnitude. A consolidated symbol list appears in
 Appendix~A.
 
-\section{The shared pipeline}
+\subsection{The shared pipeline}
 
 The two finishing routes are modelled independently up to the point at which
 each produces a reflectance spectrum. From there they share a single common
@@ -484,9 +580,9 @@ directly comparable. Any difference in the final capability figure is
 attributable to the physics of the finish itself, and not to any difference in
 how colour was computed.
 
-\section{The colour engine}
+\subsection{The colour engine}
 
-\subsection{Tristimulus values}
+\subsubsection{Tristimulus values}
 
 The first step converts a reflectance spectrum into three numbers representing
 the response of the human eye.
@@ -541,7 +637,7 @@ values would depend on how bright the illuminating lamp happened to be. Dividing
 through by the response to the illuminant alone removes that dependence, so the
 numbers describe the \emph{surface} rather than the lighting.
 
-\subsection{Conversion to CIELAB}
+\subsubsection{Conversion to CIELAB}
 
 Tristimulus values are converted to the perceptually organised CIELAB
 coordinates by
@@ -583,7 +679,7 @@ avoids the infinite slope the cube root would otherwise have near zero, which
 would make very dark colours numerically unstable.
 \end{symlist}
 
-\subsection{Colour difference}
+\subsubsection{Colour difference}
 
 Two colours are compared using the CIEDE2000 formula:
 
@@ -629,11 +725,11 @@ The implementation follows Sharma, Wu and Dalal (2005), which resolves
 ambiguities in the original CIE specification concerning how hue angles are
 averaged when they straddle the 0 and 360 degree boundary. These edge cases are
 the most common source of error in CIEDE2000 implementations, which is why the
-verification in Chapter~4 tests them explicitly.
+verification in Section~4 tests them explicitly.
 
-\section{Modelling the anodizing route}
+\subsection{Modelling the anodizing route}
 
-\subsection{Film growth}
+\subsubsection{Film growth}
 
 Anodic oxide grows electrochemically from the applied current while the acid
 simultaneously dissolves it back. The net rate is the difference between these
@@ -704,7 +800,7 @@ this combined effect, which is why temperature control is the first investment
 any anodizing line makes.
 \end{keypoint}
 
-\subsection{Porosity and dye uptake}
+\subsubsection{Porosity and dye uptake}
 
 The dye occupies the pores, so the quantity of dye a film can hold is
 proportional to the available pore volume, which is porosity multiplied by
@@ -735,7 +831,7 @@ amphoteric oxide surface peaks near this value and falls away on both sides.
 nominal value of 3\,g/L used for normalisation.
 \end{symlist}
 
-\subsection{Optical response}
+\subsubsection{Optical response}
 
 A dyed anodic film is a \textbf{bulk absorber}, not an interference filter.
 Light crosses the transparent film, reflects from the aluminium beneath, and
@@ -779,7 +875,7 @@ Because Equation~\eqref{eq:beer} contains no interference term, a dyed anodic
 film barely changes colour with viewing angle. This is the exact opposite of
 the PVD stack described next, and the contrast turns out to matter.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{anodize_physics.png}
 \caption[Anodizing physics: temperature sensitivity]{Left: reflectance of a
@@ -789,9 +885,9 @@ accelerates and thickness falls (solid line), while porosity rises (dashed
 line).}
 \end{figure}
 
-\section{Modelling the PVD route}
+\subsection{Modelling the PVD route}
 
-\subsection{The transfer matrix method}
+\subsubsection{The transfer matrix method}
 
 Because PVD layers are comparable in thickness to the wavelength of light, the
 reflection from a stack cannot be computed surface by surface. Multiple
@@ -894,7 +990,7 @@ $0 \le R \le 1$ for every stack at every angle. That check is retained
 permanently, because the failure is otherwise invisible.
 \end{keypoint}
 
-\subsection{Optical constants}
+\subsubsection{Optical constants}
 
 Every material is described by a complex refractive index:
 
@@ -953,7 +1049,7 @@ where that transition absorbs.
 the absorption band is.
 \end{symlist}
 
-\subsection{Stoichiometry as the colour control}
+\subsubsection{Stoichiometry as the colour control}
 
 Titanium nitride absorbs strongly enough that beyond roughly $150\nm$ the film
 is optically opaque and the substrate beneath becomes irrelevant. Thickness
@@ -974,7 +1070,7 @@ blue, shifting the appearance from gold towards metallic silver.
 Simultaneously the bound oscillator responsible for the gold colour weakens,
 and increased point defect density broadens every spectral feature.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{pvd_physics.png}
 \caption[PVD physics: stoichiometry and angular shift]{Left: reflectance of the
@@ -983,7 +1079,7 @@ colour shift of the same interference stack, which is the mechanism by which a
 part can pass inspection viewed face on and fail when viewed at a chamfer.}
 \end{figure}
 
-\section{Propagating process variation}
+\subsection{Propagating process variation}
 
 Each process input is assigned a control tolerance representing how tightly the
 line actually holds it. That tolerance is interpreted as a $\pm 3\sigma$ band,
@@ -1017,7 +1113,7 @@ Equation~\eqref{eq:cpk} is used in that case.
 99.73\,\% of its values within $\pm 3\sigma$ of the mean.
 \end{symlist}
 
-\subsection{Ranking the inputs}
+\subsubsection{Ranking the inputs}
 
 Process inputs are ranked by \textbf{standardised regression coefficients},
 obtained by regressing the response on inputs that have first been converted to
@@ -1046,7 +1142,7 @@ and dividing by its standard deviation.
 \item[$\bar{q}, \sigma_q$] Mean and standard deviation of $q$.
 \end{symlist}
 
-\section{Experimental design}
+\subsection{Experimental design}
 
 A Box-Behnken design is used throughout. For $k$ factors it takes every pair of
 factors to all four combinations of their high and low levels while holding all
@@ -1089,13 +1185,13 @@ per litre.
 \end{symlist}
 
 % ==========================================================================
-\chapter{Verification}
+\section{Verification}
 
 No result is reported before the implementation has been checked against
 independently published values. The automated test suite contains 62 checks.
 The load bearing ones are recorded below.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \small
 \begin{tabular}{@{}p{0.40\textwidth}p{0.54\textwidth}@{}}
@@ -1140,14 +1236,14 @@ continuous integration on Python 3.10 to 3.12.}
 \end{table}
 
 % ==========================================================================
-\chapter{Results}
+\section{Results}
 
-\section{Anodizing route}
+\subsection{Anodizing route}
 
 At the nominal process window with a black dye, the process is comfortably
 capable in colour and marginal in thickness.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
@@ -1169,7 +1265,7 @@ concentration, exactly as Equation~\eqref{eq:anodize} requires. This agreement
 between an independently fitted empirical surface and the governing equation is
 itself a useful consistency check.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{anodize_capability.png}
 \caption[Anodizing capability]{Anodizing capability. Colour (left) sits far
@@ -1178,14 +1274,14 @@ available window. The Pareto chart (right) identifies dye concentration and
 current density as the leading contributors to colour variation.}
 \end{figure}
 
-\section{The effect of colour selection}
+\subsection{The effect of colour selection}
 
 The most consequential result in this study arises from changing nothing at all
 about the process. Holding the process window, the control tolerances and the
 sample size fixed, and varying only which dye is in the tank, produces the
 following:
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
@@ -1215,7 +1311,7 @@ argues for capability analysis being performed \emph{at the point of colour
 selection}, not after the line has been commissioned.
 \end{keypoint}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=0.74\textwidth]{anodize_dye_robustness.png}
 \caption[Colour capability by dye choice]{Colour capability by dye choice under
@@ -1223,7 +1319,7 @@ an identical process window. Only black and graphite clear the $\Cpk = 1.33$
 gate.}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{anodize_swatches.png}
 \caption[Rendered anodized colour versus bath temperature]{Rendered appearance
@@ -1232,12 +1328,12 @@ computed from the simulated spectra through the same colourimetric pipeline,
 then converted to sRGB for display.}
 \end{figure}
 
-\section{PVD route}
+\subsection{PVD route}
 
 The PVD interference stack fails at tolerances that would be entirely normal on
 a production tool.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \begin{tabular}{@{}lrlr@{}}
 \toprule
@@ -1266,7 +1362,7 @@ penalised as heavily as drifting nitrogen lean.
 Applying the greedy tightening procedure, which repeatedly identifies the
 dominant contributor and reduces its tolerance, converges after 18 iterations:
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \begin{tabular}{@{}lrrl@{}}
 \toprule
@@ -1289,7 +1385,7 @@ changes nothing an observer can detect. Composition is the real lever, and
 composition is governed by a gas flow controller, not by a deposition timer.
 \end{keypoint}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{pvd_capability.png}
 \caption[PVD capability]{PVD capability. A substantial fraction of the
@@ -1299,7 +1395,7 @@ nitrogen control (right) is steeply quadratic, so symmetric drift in either
 direction is penalised.}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{pvd_swatches.png}
 \caption[Rendered PVD colour versus stoichiometry]{Rendered PVD appearance
@@ -1307,9 +1403,9 @@ across the stoichiometry range. An $8\,\%$ composition swing carries the finish
 from pale champagne to warm bronze.}
 \end{figure}
 
-\section{Comparison of the two routes}
+\subsection{Comparison of the two routes}
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \small
 \begin{tabular}{@{}p{3.4cm}p{5.1cm}p{5.1cm}@{}}
@@ -1330,14 +1426,15 @@ What to instrument   & Bath temperature control, coating thickness gauge & Mass 
 \bottomrule
 \end{tabular}
 \caption{Comparative failure modes of the two finishing routes.}
+\label{tab:compare}
 \end{table}
 
 % ==========================================================================
-\chapter{Discussion}
+\section{Discussion}
 
-\section{Why a control plan does not transfer between routes}
+\subsection{Why a control plan does not transfer between routes}
 
-The comparison in Table~5.5 shows that the two routes fail in entirely
+The comparison in Table~\ref{tab:compare} shows that the two routes fail in entirely
 different places. The anodizing line requires thickness metrology and
 temperature control. The PVD line requires gas flow precision and in chamber
 optical monitoring. Neither conclusion is reachable without modelling the
@@ -1350,7 +1447,7 @@ control expertise on one route should not assume that expertise transfers. The
 instruments differ, the critical variables differ, and the relationship between
 the two differs.
 
-\section{Why thickness is the wrong instinct for PVD}
+\subsection{Why thickness is the wrong instinct for PVD}
 
 The result that TiN thickness contributes only 2.5\,\% of colour variance
 deserves emphasis, because it contradicts a reasonable engineering intuition.
@@ -1364,9 +1461,9 @@ absorption depths thick. Light that enters it does not return. Adding a further
 $50\nm$ changes nothing an observer can detect, because that additional
 material sits behind a region light never reaches.
 
-\section{Why the colour selection result matters most}
+\subsection{Why the colour selection result matters most}
 
-Of the findings in Chapter~5, the dye comparison has the largest practical
+Of the findings in Section~5, the dye comparison has the largest practical
 consequence, because it identifies a lever that costs nothing to use and is
 available earliest.
 
@@ -1383,13 +1480,13 @@ early is a process engineering responsibility even though the decision is not a
 process engineering decision.
 
 % ==========================================================================
-\chapter{Limitations}
+\section{Limitations}
 
 These results are derived entirely from simulation. Stating the boundaries
 precisely is part of the result, and each limitation below is stated with its
 consequence for how the findings may be used.
 
-\section{Optical constants are representative, not measured}
+\subsection{Optical constants are representative, not measured}
 
 The Drude-Lorentz parameters in Equation~\eqref{eq:drude} are representative
 literature fit values for each material class. They are not measurements of any
@@ -1405,7 +1502,7 @@ predictions of a physical coating. Absolute colour prediction against a real
 colour master would require measured optical constants, which the software
 accepts as a drop in replacement.
 
-\section{Empirical relations in the anodizing model}
+\subsection{Empirical relations in the anodizing model}
 
 The porosity and dye uptake relations, Equation~\eqref{eq:dye} in particular,
 are phenomenological. They were constructed to reproduce published Type II
@@ -1413,7 +1510,7 @@ behaviour rather than derived from first principles.
 
 \textbf{Consequence.} Trends are trustworthy. Absolute dye loadings are not.
 
-\section{Capability computed here is short term}
+\subsection{Capability computed here is short term}
 
 Samples are drawn at fixed nominal settings, so what
 Equation~\eqref{eq:cpk} computes is within batch, short term capability.
@@ -1421,11 +1518,11 @@ Equation~\eqref{eq:cpk} computes is within batch, short term capability.
 \textbf{Consequence.} Long term capability on a real line will be worse,
 because it additionally carries drift between bath changes, variation with rack
 position, differences between operators and shifts, and gradual bath ageing.
-The figures in Chapter~5 should therefore be read as an optimistic bound. A
+The figures in Section~5 should therefore be read as an optimistic bound. A
 process that achieves $\Cpk = 1.33$ in this model would require further margin
 to achieve it in production.
 
-\section{No experimental validation}
+\subsection{No experimental validation}
 
 No coupons were anodized, no stacks were deposited, and no spectrophotometer
 readings were taken.
@@ -1438,9 +1535,9 @@ half. The software is deliberately structured so that a measured dataset drops
 directly into the existing comparison path.
 
 % ==========================================================================
-\chapter{Conclusions and Recommendations}
+\section{Conclusions and Recommendations}
 
-\section{Conclusions}
+\subsection{Conclusions}
 
 \begin{enumerate}[leftmargin=1.6em, itemsep=5pt]
 
@@ -1466,7 +1563,7 @@ recover, and it is free to avoid provided it is considered early enough.
 
 \end{enumerate}
 
-\section{Recommendations}
+\subsection{Recommendations}
 
 \begin{enumerate}[leftmargin=1.6em, itemsep=5pt]
 
@@ -1498,7 +1595,7 @@ of Section~7.3 removed.
 % ==========================================================================
 \appendix
 
-\chapter{Nomenclature}
+\section{Nomenclature}
 
 \begin{longtable}{@{}p{2.3cm}p{8.6cm}p{3.4cm}@{}}
 \toprule
@@ -1582,7 +1679,7 @@ $R^2$ & Coefficient of determination & 0 to 1 \\
 \bottomrule
 \end{longtable}
 
-\chapter{Reproducing this study}
+\section{Reproducing this study}
 
 Every number and every figure in this report is regenerated by a single
 command:
@@ -1591,7 +1688,7 @@ command:
 \texttt{python scripts/run\_study.py}
 \end{center}
 
-The test suite described in Chapter~4 is executed by \texttt{python -m pytest}
+The test suite described in Section~4 is executed by \texttt{python -m pytest}
 and comprises 62 checks. Both the tests and the full study are re-executed in
 continuous integration on every change, across Python 3.10, 3.11 and 3.12, so
 this document and the code that produced it cannot drift apart.
@@ -1600,7 +1697,7 @@ The design tables are additionally exported in a form suitable for JMP,
 together with a JSL script that reconstructs the response surface analysis, the
 prediction profiler and the contour profiler directly.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \small
 \begin{tabular}{@{}ll@{}}
@@ -1621,7 +1718,7 @@ Figures used in this report   & \texttt{docs/figures/} \\
 
 % ==========================================================================
 \begin{thebibliography}{9}
-\addcontentsline{toc}{chapter}{References}
+\addcontentsline{toc}{section}{References}
 \small
 
 \bibitem{sheasby} Sheasby, P.~G. and Pinner, R.
