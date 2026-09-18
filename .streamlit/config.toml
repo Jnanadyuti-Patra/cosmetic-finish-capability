@@ -1,0 +1,17 @@
+# Streamlit Community Cloud reads this automatically.
+
+[theme]
+base = "light"
+primaryColor = "#1F4E79"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F6F8"
+textColor = "#1A1A1A"
+font = "sans serif"
+
+[server]
+# The dashboard sends no files and needs no uploads.
+maxUploadSize = 1
+enableStaticServing = false
+
+[browser]
+gatherUsageStats = false

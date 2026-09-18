@@ -1,11 +1,17 @@
 # Cosmetic Finish Process-Capability Simulator
 
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://cosmetic-finish-capability.streamlit.app)
 [![tests](https://github.com/Jnanadyuti-Patra/cosmetic-finish-capability/actions/workflows/tests.yml/badge.svg)](https://github.com/Jnanadyuti-Patra/cosmetic-finish-capability/actions/workflows/tests.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 Predicting **colour yield** from **process control limits**, for two industrial
 surface-finishing routes.
+
+### ▶ [Try the live dashboard](https://cosmetic-finish-capability.streamlit.app)
+
+Move the process settings and the control tolerances, and watch the predicted
+colour, the capability index and the yield move with them. No install required.
 
 A finished aluminium or stainless enclosure has to come out the same colour every
 time. Both common routes to that colour, anodize-and-dye and PVD thin film,
