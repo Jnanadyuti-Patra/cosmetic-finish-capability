@@ -1,22 +1,28 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[11pt,a4paper]{report}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=2.4cm]{geometry}
+\usepackage[margin=2.4cm,top=2.8cm,bottom=2.6cm]{geometry}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{xcolor}
 \usepackage{float}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
 \usepackage[font=small,labelfont=bf]{caption}
 \usepackage{enumitem}
+\usepackage{mdframed}
 \usepackage[hidelinks]{hyperref}
 
 \graphicspath{{figures/}}
 
 \definecolor{accent}{HTML}{1F4E79}
 \definecolor{boxbg}{HTML}{F4F6F8}
+\definecolor{rulegrey}{HTML}{999999}
 
 \newcommand{\dE}{\ensuremath{\Delta E_{00}}}
 \newcommand{\Cpk}{\ensuremath{C_{pk}}}
@@ -24,421 +30,1160 @@
 \newcommand{\nm}{\ensuremath{\,\mathrm{nm}}}
 \newcommand{\degC}{\ensuremath{^\circ\mathrm{C}}}
 
-% A shaded box for plain-language asides.
-\usepackage{mdframed}
+% ==== report=style chapter and section headings ===========================
+\titleformat{\chapter}[hang]
+  {\normalfont\Large\bfseries\color{accent}}
+  {\thechapter.}{0.6em}{\Large}
+\titlespacing*{\chapter}{0pt}{0pt}{18pt}
+
+\titleformat{\section}[hang]
+  {\normalfont\large\bfseries\color{accent}}
+  {\thesection}{0.6em}{}
+\titleformat{\subsection}[hang]
+  {\normalfont\normalsize\bfseries}
+  {\thesubsection}{0.6em}{}
+
+% ==== running headers and footers =========================================
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhead[L]{\small\itshape Predicting Colour Yield from Process Control Limits}
+\fancyhead[R]{\small\thepage}
+\fancyfoot[L]{\small Jnanadyuti Patra}
+\fancyfoot[R]{\small 18 September 2026}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+
+% ==== callout boxes ========================================================
 \newmdenv[
-  backgroundcolor=boxbg,
-  linecolor=accent,
-  linewidth=1pt,
+  backgroundcolor=boxbg, linecolor=accent, linewidth=1.2pt,
   topline=false, bottomline=false, rightline=false,
   innerleftmargin=10pt, innertopmargin=8pt, innerbottommargin=8pt,
   skipabove=10pt, skipbelow=10pt
-]{plainbox}
+]{keypoint}
 
-\title{\vspace{-1.2cm}\textbf{Predicting Colour Yield from Process Control Limits}\\[0.35em]
-\large A physics-based capability study of anodizing and PVD thin-film finishing}
-\author{Jnanadyuti Patra}
-\date{18 September 2026}
+\newmdenv[
+  linecolor=rulegrey, linewidth=0.6pt,
+  innerleftmargin=9pt, innerrightmargin=9pt,
+  innertopmargin=7pt, innerbottommargin=7pt,
+  skipabove=9pt, skipbelow=9pt
+]{defbox}
+
+% ==== a consistent "where:" symbol list ====================================
+\newenvironment{symlist}
+  {\vspace{-0.25em}\begin{list}{}{%
+    \setlength{\leftmargin}{2.6em}\setlength{\labelwidth}{2.2em}%
+    \setlength{\labelsep}{0.4em}\setlength{\itemsep}{2pt}%
+    \setlength{\parsep}{0pt}\setlength{\topsep}{4pt}%
+    \renewcommand{\makelabel}[1]{##1\hfil}}}
+  {\end{list}}
 
 \begin{document}
-\maketitle
 
-\begin{abstract}
-\noindent
-Manufactured products that must look identical --- a laptop lid, a watch case, a
-phone frame --- get their colour from a surface finishing process, and that
-process drifts. This study builds a physics model of two industrial finishing
-routes, anodizing-and-dyeing and physical vapour deposition (PVD), and pushes
-realistic process variation through them to predict what fraction of parts land
-inside a colour specification. The two routes are found to fail in entirely
-different places. A black anodized finish is almost immune to colour variation
-($\Cpk = 16.7$) and is limited instead by film thickness ($\Cpk = 1.80$). A PVD
-interference stack has no thickness problem at all, yet yields only
-$56.4\,\%$ at realistic tolerances, with a single variable --- nitrogen
-stoichiometry --- responsible for $69.8\,\%$ of the colour variance. Solving for
-the control limits that would achieve $\Cpk \geq 1.33$ requires tightening
-nitrogen control sixfold. A third result is that the colour a designer selects
-is itself a capability decision: holding the anodizing process completely fixed
-and changing only the dye moves yield from $100\,\%$ to $77.7\,\%$.
-\end{abstract}
+% ==========================================================================
+% TITLE PAGE
+% ==========================================================================
+\begin{titlepage}
+\centering
+\vspace*{2.2cm}
 
-\vspace{-0.4cm}
-\tableofcontents
-\vspace{0.4cm}
+{\color{accent}\rule{\textwidth}{1.6pt}}
 
-% =====================================================================
-\section{The problem, in plain language}
+\vspace{0.9cm}
+{\Huge\bfseries Predicting Colour Yield\\[0.3em] from Process Control Limits\par}
 
-\subsection{Why this matters}
+\vspace{0.7cm}
+{\Large A process capability study of anodizing and\\[0.2em]
+PVD thin film surface finishing\par}
 
-Pick up any anodized aluminium laptop or any coated stainless steel watch. It
-has a colour. Now consider that the factory made a million of them, and every
-single one has to be the \emph{same} colour --- close enough that a customer
-holding two of them side by side cannot tell.
+\vspace{0.5cm}
+{\color{accent}\rule{\textwidth}{1.6pt}}
 
-That is harder than it sounds, because colour is not painted on. It is the
-by-product of a chemical or physical process running in a tank or a vacuum
-chamber, and every one of those processes drifts. The acid bath warms up over a
-shift. The dye gets consumed. A gas flow controller reads half a percent high.
-None of these drifts is a fault; they are the normal breathing of a production
-line. The question is whether the colour they produce still falls inside the
+\vspace{2.2cm}
+
+\begin{tabular}{@{}r@{\hspace{1.2em}}l@{}}
+\textbf{Author}            & Jnanadyuti Patra \\[0.4em]
+\textbf{Date}              & 18 September 2026 \\[0.4em]
+\textbf{Document type}     & Technical study report \\[0.4em]
+\textbf{Version}           & 1.0 \\[0.4em]
+\textbf{Software}          & \texttt{finishsim} v1.0.0 \\[0.4em]
+\textbf{Status}            & Simulation only, no experimental validation \\
+\end{tabular}
+
+\vspace{2.6cm}
+
+\begin{minipage}{0.86\textwidth}
+\small
+\textbf{Summary of purpose.} This report examines how tightly a surface
+finishing line must hold its process settings in order to produce parts of a
+consistent colour. Two industrial routes are modelled from first principles:
+anodizing with dyeing, and physical vapour deposition of thin films. The study
+quantifies, for each route, what fraction of parts fall inside a colour
+specification and which single process control most deserves investment.
+\end{minipage}
+
+\vfill
+{\small Prepared using open source tools. All results are reproducible from the
+accompanying code repository by a single command.}
+\end{titlepage}
+
+% ==========================================================================
+% EXECUTIVE SUMMARY
+% ==========================================================================
+\pagenumbering{roman}
+\setcounter{page}{2}
+
+\chapter*{Executive Summary}
+\addcontentsline{toc}{chapter}{Executive Summary}
+\markboth{Executive Summary}{}
+
+\section*{Background}
+
+Products that must look identical, such as laptop lids, watch cases and phone
+frames, obtain their colour from a surface finishing process. Every such
+process drifts during normal operation. An acid bath warms up over a shift, a
+dye becomes depleted, a gas flow controller reads slightly high. None of these
+is a fault. The question is whether the resulting colour still falls inside
 tolerance.
 
-\begin{plainbox}
-\textbf{The question this study answers.} Given how tightly a real production
-line holds its process settings, what fraction of parts come out the right
-colour --- and if the answer is not good enough, which single control should be
-tightened first?
-\end{plainbox}
+\section*{What was done}
 
-This matters commercially because cosmetic rejects are expensive and late. A
-part that fails a dimensional check fails at the machine. A part that fails a
-\emph{cosmetic} check fails at the very end, after all the value has been added,
-and it usually cannot be reworked.
+A physics based computer model was built covering two finishing routes, and
+realistic process variation was pushed through it to predict colour yield. The
+model runs the complete causal chain from a change in process setting, through
+the film that grows, to the light that film reflects, to the colour a human
+observer perceives, and finally to the fraction of parts that pass inspection.
 
-\subsection{What gets built}
+\section*{Principal findings}
 
-The study builds a computer model that runs the whole causal chain:
+\begin{enumerate}[leftmargin=1.6em, itemsep=6pt]
+
+\item \textbf{The PVD interference stack is not capable at realistic
+tolerances.} It yields 56.4\,\% against a colour specification of $\dE \le 1.0$,
+with a capability index of $-0.018$. A negative capability index means the
+average part is already a reject, not merely that the spread is too wide.
+
+\item \textbf{A single variable dominates, and it is not the obvious one.}
+Nitrogen stoichiometry accounts for 69.8\,\% of all colour variance. Coating
+thickness, which is the variable an engineer would instinctively control,
+accounts for only 2.5\,\% and never requires tightening. The film becomes
+optically opaque beyond roughly $150\nm$, so additional thickness produces no
+visible change.
+
+\item \textbf{The corrective action is quantified.} Achieving a capability
+index of 1.33 requires nitrogen control to be tightened six fold, from
+$\pm 0.040$ to $\pm 0.0067$, and overcoat thickness control to be tightened 2.7
+fold, from $\pm 8.0\nm$ to $\pm 3.0\nm$.
+
+\item \textbf{The choice of colour is itself a capability decision.} Holding
+the anodizing process, its tolerances and the sample size completely fixed, and
+changing only which dye is in the tank, moves yield from 100\,\% for black to
+77.7\,\% for blue. This 22 percentage point swing originates in a design
+review, not on the production line.
+
+\item \textbf{The two routes fail in opposite places.} Anodized black is
+robust in colour but limited by film thickness. The PVD stack has no thickness
+problem at all and is limited entirely by composition. A control plan written
+for one route is of little use for the other.
+
+\end{enumerate}
+
+\section*{Recommendations}
+
+\begin{enumerate}[leftmargin=1.6em, itemsep=4pt]
+\item Assess cosmetic capability at the point of colour selection, before a
+process is specified, because the colour chosen can dominate every subsequent
+process improvement.
+\item For the PVD route, direct investment towards mass flow control precision
+and in chamber optical monitoring rather than towards deposition timing.
+\item For the anodizing route, direct investment towards bath temperature
+control and coating thickness metrology.
+\item Validate this model experimentally before using it for absolute colour
+prediction. Its trends are trustworthy; its absolute colour values are not yet
+confirmed against physical samples.
+\end{enumerate}
+
+\vspace{0.4cm}
+\noindent\rule{\textwidth}{0.4pt}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\cleardoublepage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% ==========================================================================
+\chapter{Purpose and Scope}
+
+\section{The problem this report addresses}
+
+Consider any anodized aluminium laptop or any coated stainless steel watch. It
+has a colour. Now consider that the factory produced a million of them, and
+every one must be the same colour, close enough that a customer holding two
+side by side cannot tell them apart.
+
+This is harder than it appears, because the colour is not painted on. It is a
+by product of a chemical or physical process running inside a tank or a vacuum
+chamber, and every such process drifts during normal operation. These drifts
+are not faults; they are the ordinary behaviour of a production line. The
+engineering question is whether the colour they produce remains inside the
+tolerance band.
+
+\begin{keypoint}
+\textbf{The central question.} Given how tightly a real production line holds
+its process settings, what fraction of parts emerge the correct colour, and if
+that fraction is insufficient, which single control should be tightened first?
+\end{keypoint}
+
+The commercial importance is specific. A part that fails a dimensional check
+fails at the machine that made it, early, when little value has been added. A
+part that fails a \emph{cosmetic} check fails at the very end of the line,
+after all the value has been added, and in most cases it cannot be reworked.
+Cosmetic rejects are therefore disproportionately expensive.
+
+\section{Scope}
+
+\subsection{Included in this study}
+
+\begin{itemize}[leftmargin=1.4em, itemsep=2pt]
+\item Type II sulfuric acid anodizing of aluminium, followed by dyeing.
+\item Physical vapour deposition of decorative nitride thin film stacks.
+\item Prediction of the reflectance spectrum produced by each route.
+\item Conversion of that spectrum to perceived colour using the international
+standard colourimetric system.
+\item Propagation of process variation through to capability indices and
+predicted yield.
+\item Identification and ranking of the process variables that drive colour
+variation.
+\item Calculation of the control tolerances required to meet a stated
+capability target.
+\end{itemize}
+
+\subsection{Excluded from this study}
+
+\begin{itemize}[leftmargin=1.4em, itemsep=2pt]
+\item Experimental validation. No physical coupons were produced or measured.
+\item Mechanical properties such as hardness, adhesion and wear resistance.
+\item Corrosion performance and accelerated ageing.
+\item Gloss, texture and surface roughness, which contribute to appearance but
+are treated here as held constant.
+\item Cost modelling and equipment selection.
+\item Long term process drift between batches, shifts and operators. Only
+within batch variation is modelled. Section~7.3 explains why this matters.
+\end{itemize}
+
+\section{How to read this report}
+
+Chapter~2 explains the necessary background from first principles and assumes
+no prior knowledge of surface finishing, optics or statistics. Readers already
+familiar with the field may proceed directly to Chapter~3, which describes the
+model. Every equation in Chapter~3 is followed by a complete definition of its
+symbols, their units and their typical magnitudes. Chapter~4 records how the
+implementation was verified. Chapters~5 and~6 present and discuss the results.
+Chapter~7 states the limitations precisely, and Chapter~8 gives conclusions and
+recommendations. A complete list of symbols appears in Appendix~A.
+
+% ==========================================================================
+\chapter{Background}
+
+This chapter builds up the four ideas the report depends upon: how anodizing
+works, how thin film coating works, how colour is measured numerically, and how
+process capability is measured. Each is presented without assuming prior
+exposure.
+
+\section{Anodizing}
+
+Anodizing is an electrochemical process. An aluminium part is immersed in an
+acid bath, usually dilute sulfuric acid, and connected as the positive
+electrode. Passing current causes the aluminium surface to oxidise, growing a
+hard, porous oxide skin out of the metal's own surface rather than depositing a
+separate layer on top of it.
+
+Two features of this oxide matter for colour:
+
+\begin{enumerate}[leftmargin=1.5em, itemsep=3pt]
+\item \textbf{It is porous.} The film contains a dense array of fine vertical
+pores. These pores can be filled with dye, which is how anodized parts obtain
+colour. More pore volume means more dye can be absorbed.
+\item \textbf{It is transparent.} Aluminium oxide does not absorb visible
+light. Light therefore passes through the film, reflects from the metal
+beneath, and passes back out. The colour is produced entirely by whatever dye
+sits in the pores.
+\end{enumerate}
+
+\begin{defbox}
+\textbf{Type II} refers to conventional sulfuric acid anodizing producing films
+of roughly $5$ to $25\um$ thickness, which is the standard architectural and
+decorative process. Type I uses chromic acid and Type III, often called hard
+anodizing, uses colder baths and higher voltages to produce thicker, denser and
+more wear resistant films.
+\end{defbox}
+
+\section{Physical vapour deposition}
+
+Physical vapour deposition, abbreviated PVD, is a vacuum process. A solid metal
+target, commonly titanium, is vaporised by bombardment. The resulting vapour
+travels across the chamber and condenses onto the part as an extremely thin
+film, typically a few hundred nanometres thick, which is roughly one thousandth
+the width of a human hair.
+
+If nitrogen gas is admitted during deposition, the metal vapour reacts with it
+to form a nitride. Titanium nitride is a hard ceramic which happens to be gold
+coloured, which is why it is widely used on watch cases, taps and cutting
+tools.
+
+The colour of a PVD coating arises from two distinct mechanisms, and
+distinguishing them is essential to understanding the results in Chapter~5:
+
+\begin{enumerate}[leftmargin=1.5em, itemsep=4pt]
+\item \textbf{Bulk absorption.} The nitride itself absorbs some wavelengths
+more than others. Titanium nitride absorbs blue light strongly and reflects red
+light well, which is what makes it look gold. This mechanism depends on the
+material's \emph{composition}, not on how much of it is present, provided there
+is enough to be opaque.
+\item \textbf{Optical interference.} Because the layers are comparable in
+thickness to the wavelength of visible light, light reflected from the top
+surface of a layer can interfere with light reflected from its bottom surface.
+The two waves reinforce at some wavelengths and cancel at others. This
+mechanism depends strongly on layer \emph{thickness}, and it is the same effect
+that produces the colours in a soap bubble or an oil film on water.
+\end{enumerate}
+
+\section{Measuring colour numerically}
+
+\subsection{The reflectance spectrum}
+
+The most complete physical description of how a surface interacts with light is
+its \textbf{reflectance spectrum}, written $R(\lambda)$. This states, for each
+wavelength $\lambda$ of light, what fraction is reflected. A value of $R = 0.8$
+at $600\nm$ means the surface reflects 80\,\% of the orange light striking it.
+
+An object appears red because its spectrum is high in the red region of the
+spectrum, around $650\nm$, and low elsewhere. Visible light spans roughly
+$380\nm$, which appears violet, to $780\nm$, which appears deep red.
+
+\subsection{From spectrum to perceived colour}
+
+A spectrum is not itself a colour. Colour is a perception, and the human eye
+does not record the full spectrum. It contains three types of cone cell, each
+sensitive to a broad and overlapping band of wavelengths. The eye therefore
+compresses the entire spectrum into just three numbers.
+
+The Commission Internationale de l'\'Eclairage, abbreviated CIE, standardised
+this in 1931 by defining three \textbf{colour matching functions}, written
+$\bar{x}(\lambda)$, $\bar{y}(\lambda)$ and $\bar{z}(\lambda)$. These describe
+the sensitivity of a standard human observer at each wavelength. Weighting a
+spectrum by these functions and summing produces three numbers called
+tristimulus values, from which every further colour calculation follows.
+
+\subsection{CIELAB}
+
+Tristimulus values are not convenient for engineering because equal numerical
+differences do not correspond to equal visible differences. The CIELAB system
+addresses this by transforming them into three more useful coordinates:
+
+\begin{defbox}
+\begin{tabular}{@{}p{2.2cm}p{11.6cm}@{}}
+$L^*$ & \textbf{Lightness}, from 0 for perfect black to 100 for perfect white. \\[3pt]
+$a^*$ & \textbf{Green to red axis}. Negative values are green, positive values
+        are red, zero is neutral. \\[3pt]
+$b^*$ & \textbf{Blue to yellow axis}. Negative values are blue, positive values
+        are yellow, zero is neutral. \\
+\end{tabular}
+\end{defbox}
+
+A saturated gold finish might be described as $L^* = 76$, $a^* = 4$, $b^* = 49$,
+meaning fairly light, very slightly red, and strongly yellow.
+
+\subsection{Colour difference}
+
+To state whether two parts match, a single number is needed. The current
+international standard is \textbf{CIEDE2000}, written \dE. Its interpretation
+is approximately as follows:
+
+\begin{defbox}
+\begin{tabular}{@{}p{3.0cm}p{10.8cm}@{}}
+$\dE < 0.5$   & Not distinguishable even under careful side by side comparison. \\[2pt]
+$\dE \approx 1.0$ & The threshold at which a trained observer can reliably
+                    detect a difference. Most consumer product cosmetic
+                    specifications are set here or tighter. \\[2pt]
+$\dE \approx 2$ to $3$ & Visible to an ordinary observer comparing two parts. \\[2pt]
+$\dE > 5$     & Obviously different colours. \\
+\end{tabular}
+\end{defbox}
+
+This report uses $\dE \le 1.0$ as the colour specification throughout.
+
+\section{Measuring process capability}
+
+\subsection{Why an average is not enough}
+
+Knowing that a process produces the correct colour \emph{on average} says
+nothing useful. What matters is the spread. A process centred perfectly in the
+middle of its tolerance but with a very wide spread will produce many rejects,
+while a process slightly off centre but with a very tight spread may produce
+none.
+
+\subsection{The capability index}
+
+The capability index $\Cpk$ combines centring and spread into one number. It
+compares the distance from the process mean to the nearest specification limit
+against three standard deviations of the process spread.
+
+\begin{defbox}
+\begin{tabular}{@{}p{2.6cm}p{11.2cm}@{}}
+$\Cpk < 1.0$   & Not capable. The process spread is wider than the tolerance
+                 band, and rejects are certain. \\[2pt]
+$\Cpk = 1.0$   & Marginal. The tolerance band is exactly as wide as the process
+                 spread, giving roughly 2700 defects per million. \\[2pt]
+$\Cpk = 1.33$  & The usual consumer electronics gate, giving roughly 32 defects
+                 per million. This report adopts it as the target. \\[2pt]
+$\Cpk = 2.0$   & Very comfortable, roughly 2 defects per billion. \\[2pt]
+$\Cpk < 0$     & The process mean lies outside the specification limit
+                 entirely. The average part is a reject. \\
+\end{tabular}
+\end{defbox}
+
+\subsection{Design of experiments}
+
+Investigating several process settings by varying one at a time is inefficient
+and, more seriously, cannot detect \textbf{interactions}, meaning cases where
+the effect of one variable depends on the level of another. A design of
+experiments, abbreviated DOE, is a structured plan that varies several settings
+simultaneously according to a pattern chosen so that individual effects,
+curvature and interactions can all be separated from a modest number of runs.
+
+% ==========================================================================
+\chapter{Modelling Approach}
+
+This chapter states the model completely. Every equation is followed by a
+definition of each symbol it contains, the units of that symbol, and where
+useful a typical magnitude. A consolidated symbol list appears in
+Appendix~A.
+
+\section{The shared pipeline}
+
+The two finishing routes are modelled independently up to the point at which
+each produces a reflectance spectrum. From there they share a single common
+path to colour and capability:
 
 \begin{center}
-\fbox{\parbox{0.92\textwidth}{\centering
-process settings drift $\;\longrightarrow\;$ the film that grows changes
-$\;\longrightarrow\;$ the light it reflects changes
-$\;\longrightarrow\;$ the colour a human sees changes
-$\;\longrightarrow\;$ some parts fall outside spec
+\fbox{\parbox{0.94\textwidth}{\centering
+\vspace{2pt}
+process variation $\;\rightarrow\;$ physics $\;\rightarrow\;$ $R(\lambda)$
+$\;\rightarrow\;$ $L^*a^*b^*$ $\;\rightarrow\;$ \dE\ $\;\rightarrow\;$ \Cpk\
+$\;\rightarrow\;$ yield
+\vspace{2pt}
 }}
 \end{center}
 
-Because every link is physics rather than a curve fit, the model can be asked
-questions no lookup table could answer --- for example, what happens at a
-temperature nobody has tried yet.
+Sharing the colour engine is deliberate and is what makes the two routes
+directly comparable. Any difference in the final capability figure is
+attributable to the physics of the finish itself, and not to any difference in
+how colour was computed.
 
-\subsection{A glossary, for readers new to the field}
+\section{The colour engine}
 
-\begin{description}[leftmargin=0pt, style=nextline, itemsep=3pt]
-  \item[Anodizing] An electrochemical process. An aluminium part is made the
-  positive electrode in an acid bath, and a hard, porous oxide skin grows out of
-  the metal's own surface. The pores can then be filled with dye, which is how
-  anodized parts get colour. Used on most aluminium consumer electronics.
+\subsection{Tristimulus values}
 
-  \item[PVD (physical vapour deposition)] A vacuum process. A solid metal target
-  is vaporised, and the vapour condenses on the part as an extremely thin film
-  --- typically a few hundred nanometres, about a thousandth of a human hair.
-  Reacting the vapour with nitrogen gas makes titanium nitride, a hard ceramic
-  that happens to be gold-coloured. Used for watch cases, taps, and tooling.
-
-  \item[Reflectance spectrum, $R(\lambda)$] The fraction of light a surface
-  reflects, measured separately at each wavelength $\lambda$. This is the raw
-  physical description of colour: an object looks red because its spectrum is
-  high in the red and low elsewhere.
-
-  \item[CIELAB] A colour coordinate system with three numbers: $L^*$ for
-  lightness ($0$ black, $100$ white), $a^*$ for green-to-red, $b^*$ for
-  blue-to-yellow. It is designed so that equal distances correspond roughly to
-  equally visible differences.
-
-  \item[\dE\ (CIEDE2000)] The standard measure of how different two colours look.
-  Roughly, $\dE \approx 1$ is the smallest difference a trained observer can
-  reliably see. Cosmetic specifications for consumer products are usually set at
-  or below this value.
-
-  \item[\Cpk\ (process capability index)] A single number saying how comfortably
-  a process fits inside its tolerance. $\Cpk = 1.0$ means the tolerance band is
-  exactly as wide as the process spread; $\Cpk = 1.33$ is the usual consumer
-  electronics gate and corresponds to roughly $32$ defective parts per million.
-  Below $1.0$ the process is not fit for the specification.
-
-  \item[DOE (design of experiments)] A structured plan for varying several
-  settings at once, so that their individual and combined effects can be
-  separated from a small number of runs rather than a huge number.
-\end{description}
-
-% =====================================================================
-\section{Method}
-
-\subsection{The shared pipeline}
-
-Both finishing routes are modelled independently up to the point where they
-produce a reflectance spectrum, after which they share one common path to
-colour and capability:
-
-\begin{equation*}
-\underbrace{\text{process variation}}_{\text{Monte Carlo}}
-\;\longrightarrow\;
-\underbrace{\text{physics}}_{\substack{\text{anodizing kinetics}\\ \text{or transfer matrix}}}
-\;\longrightarrow\;
-R(\lambda)
-\;\longrightarrow\;
-\underbrace{L^*a^*b^*}_{\text{CIE}}
-\;\longrightarrow\;
-\dE
-\;\longrightarrow\;
-\Cpk
-\;\longrightarrow\;
-\text{yield}
-\end{equation*}
-
-Sharing the colour engine is what makes the two routes directly comparable: any
-difference in the final capability number is attributable to the physics of the
-finish, not to differences in how colour was computed.
-
-\subsection{From a spectrum to a colour}
-
-Human colour vision has three receptor types. The CIE formalises this with three
-\emph{colour matching functions} $\bar{x}(\lambda)$, $\bar{y}(\lambda)$,
-$\bar{z}(\lambda)$, which describe the sensitivity of a standard observer.
-Multiplying the reflectance by the illuminating light $S(\lambda)$ and by each
-of these, then integrating, yields the tristimulus values:
+The first step converts a reflectance spectrum into three numbers representing
+the response of the human eye.
 
 \begin{equation}
-X = k\!\int R(\lambda)\,S(\lambda)\,\bar{x}(\lambda)\,\mathrm{d}\lambda,
-\qquad
-k = \frac{100}{\int S(\lambda)\,\bar{y}(\lambda)\,\mathrm{d}\lambda}
+X = k\!\int_{380}^{780} R(\lambda)\,S(\lambda)\,\bar{x}(\lambda)\,\mathrm{d}\lambda
+\label{eq:tristim}
 \end{equation}
 
-with $Y$ and $Z$ defined analogously. The illuminant used throughout is D65,
-standard average daylight. $XYZ$ is then converted to CIELAB through a cube-root
-compression that mimics the eye's non-linear lightness response, and two colours
-are compared using the CIEDE2000 formula,
+with $Y$ and $Z$ defined identically but using $\bar{y}(\lambda)$ and
+$\bar{z}(\lambda)$ respectively.
+
+\noindent\textbf{What this equation says.} At every wavelength, multiply three
+things together: how much light the illuminant provides, what fraction the
+surface reflects, and how sensitive the eye is. Then add up the result across
+the whole visible range. Doing this three times, once for each cone
+sensitivity, gives three numbers.
+
+\begin{symlist}
+\item[$X$] First tristimulus value. Dimensionless. Loosely corresponds to a red
+response.
+\item[$Y$] Second tristimulus value. Dimensionless, scaled to 100 for a perfect
+white. Corresponds to luminance, meaning perceived brightness.
+\item[$Z$] Third tristimulus value. Dimensionless. Loosely corresponds to a
+blue response.
+\item[$\lambda$] Wavelength of light, in nanometres. The integral runs from 380
+to $780\nm$, the visible range. The computation uses $5\nm$ steps, which is the
+CIE recommended interval.
+\item[$R(\lambda)$] Reflectance factor of the surface at wavelength $\lambda$.
+Dimensionless, ranging from 0 for a perfect absorber to 1 for a perfect
+reflector. This is the output of the physics models in
+Sections~3.3 and~3.4.
+\item[$S(\lambda)$] Relative spectral power distribution of the illuminant.
+Dimensionless. This report uses CIE Standard Illuminant D65, which represents
+average daylight at a correlated colour temperature of approximately 6500\,K.
+The illuminant matters because an object's colour depends on the light falling
+on it.
+\item[$\bar{x},\bar{y},\bar{z}$] CIE 1931 2 degree colour matching functions.
+Dimensionless. These are tabulated international standards describing the
+sensitivity of a standard human observer.
+\item[$k$] Normalising constant, defined in Equation~\eqref{eq:knorm}. It
+scales the result so that a perfect white reflector returns $Y = 100$.
+\end{symlist}
+
+\begin{equation}
+k = \frac{100}{\displaystyle\int_{380}^{780} S(\lambda)\,\bar{y}(\lambda)\,\mathrm{d}\lambda}
+\label{eq:knorm}
+\end{equation}
+
+\noindent\textbf{Why this normalisation exists.} Without it, the tristimulus
+values would depend on how bright the illuminating lamp happened to be. Dividing
+through by the response to the illuminant alone removes that dependence, so the
+numbers describe the \emph{surface} rather than the lighting.
+
+\subsection{Conversion to CIELAB}
+
+Tristimulus values are converted to the perceptually organised CIELAB
+coordinates by
+
+\begin{align}
+L^* &= 116\,f(Y/Y_n) - 16 \label{eq:lab1}\\
+a^* &= 500\,\left[f(X/X_n) - f(Y/Y_n)\right] \label{eq:lab2}\\
+b^* &= 200\,\left[f(Y/Y_n) - f(Z/Z_n)\right] \label{eq:lab3}
+\end{align}
+
+where the compressing function $f$ is
+
+\begin{equation}
+f(s) =
+\begin{cases}
+s^{1/3}, & s > \left(\dfrac{6}{29}\right)^{3}\\[1.1em]
+\dfrac{1}{3}\left(\dfrac{29}{6}\right)^{2} s + \dfrac{4}{29}, & \text{otherwise}
+\end{cases}
+\label{eq:labf}
+\end{equation}
+
+\noindent\textbf{What these equations say.} Each tristimulus value is first
+divided by the corresponding value for a reference white, then passed through a
+cube root. Lightness comes from the $Y$ channel alone. The two colour axes come
+from differences between channels, which is why $a^*$ and $b^*$ are both zero
+for any neutral grey.
+
+\begin{symlist}
+\item[$L^*$] Lightness, 0 to 100. Dimensionless.
+\item[$a^*,b^*$] Chromatic coordinates. Dimensionless, typically in the range
+$-128$ to $+127$.
+\item[$X_n,Y_n,Z_n$] Tristimulus values of the reference white, meaning a
+perfect reflecting diffuser under the same illuminant. For D65 with the 2 degree
+observer these are $95.047$, $100.000$ and $108.883$.
+\item[$f(s)$] Compressing function of Equation~\eqref{eq:labf}. The cube root
+reproduces the eye's non linear response to brightness: doubling the light
+reaching the eye does not double the perceived lightness. The linear branch
+avoids the infinite slope the cube root would otherwise have near zero, which
+would make very dark colours numerically unstable.
+\end{symlist}
+
+\subsection{Colour difference}
+
+Two colours are compared using the CIEDE2000 formula:
 
 \begin{equation}
 \dE = \sqrt{
 \left(\frac{\Delta L'}{k_L S_L}\right)^{\!2}
 +\left(\frac{\Delta C'}{k_C S_C}\right)^{\!2}
 +\left(\frac{\Delta H'}{k_H S_H}\right)^{\!2}
-+ R_T \frac{\Delta C'}{k_C S_C}\frac{\Delta H'}{k_H S_H}}
++ R_T\!\left(\frac{\Delta C'}{k_C S_C}\right)\!\left(\frac{\Delta H'}{k_H S_H}\right)}
+\label{eq:de00}
 \end{equation}
 
-whose weighting terms $S_L, S_C, S_H$ and rotation term $R_T$ correct for the
-fact that the eye's sensitivity depends on where in colour space the comparison
-is being made --- it is far more sensitive to a shift in a pale grey than to the
-same numerical shift in a saturated blue.
+\noindent\textbf{What this equation says.} At its core it is a distance
+formula, the three dimensional equivalent of Pythagoras' theorem, measuring how
+far apart two colours are in lightness, colour intensity and hue. The
+complication is that the eye is not equally sensitive everywhere in colour
+space. It detects a small shift in a pale grey far more readily than the same
+numerical shift in a saturated blue. Each term is therefore divided by a
+weighting function that accounts for this, and a fourth term corrects an
+additional distortion in the blue region.
 
-\subsection{Route 1: anodizing}
+\begin{symlist}
+\item[$\Delta L'$] Difference in lightness between the two colours.
+\item[$\Delta C'$] Difference in chroma, meaning colour intensity or how far
+the colour sits from neutral grey.
+\item[$\Delta H'$] Difference in hue, meaning position around the colour
+circle from red through yellow, green and blue.
+\item[$S_L,S_C,S_H$] Weighting functions for lightness, chroma and hue. Each
+increases where the eye is less sensitive, which reduces the contribution of
+that term. For example $S_C = 1 + 0.045\,\bar{C}'$ grows with chroma, encoding
+the fact that saturated colours tolerate larger shifts before the difference
+becomes visible.
+\item[$R_T$] Rotation term. Corrects an interaction between chroma and hue that
+occurs specifically in the blue region, where the axes of perceived colour
+space are tilted relative to the coordinate axes. It is essentially zero
+outside the blues.
+\item[$k_L,k_C,k_H$] Parametric factors allowing adjustment for unusual viewing
+conditions. All are set to 1 in this report, which is the standard reference
+condition.
+\end{symlist}
 
-Anodic oxide grows by Faraday's law from the anodizing current, while the acid
-simultaneously dissolves it back. The net growth is the difference:
+The implementation follows Sharma, Wu and Dalal (2005), which resolves
+ambiguities in the original CIE specification concerning how hue angles are
+averaged when they straddle the 0 and 360 degree boundary. These edge cases are
+the most common source of error in CIEDE2000 implementations, which is why the
+verification in Chapter~4 tests them explicitly.
+
+\section{Modelling the anodizing route}
+
+\subsection{Film growth}
+
+Anodic oxide grows electrochemically from the applied current while the acid
+simultaneously dissolves it back. The net rate is the difference between these
+two competing processes:
 
 \begin{equation}
 \frac{\mathrm{d}x}{\mathrm{d}t}
 = \underbrace{\frac{M_\mathrm{ox}\, j\, \eta}{z F \rho_\mathrm{ox}}}_{\text{electrochemical growth}}
 \;-\;
-\underbrace{k_0 \exp\!\left(-\frac{E_a}{RT}\right)[\mathrm{H_2SO_4}]^m}_{\text{chemical back-dissolution}}
+\underbrace{k_0 \exp\!\left(-\frac{E_a}{R_g T}\right)\left[\mathrm{H_2SO_4}\right]^m}_{\text{chemical back dissolution}}
 \label{eq:anodize}
 \end{equation}
 
-with $M_\mathrm{ox} = 101.96$ g/mol for $\mathrm{Al_2O_3}$, $z = 6$ (forming one
-$\mathrm{Al_2O_3}$ unit transfers six electrons), and
-$\rho_\mathrm{ox} \approx 3.1$ g/cm$^3$ --- below dense sapphire, because the
-anodic film is porous and partly hydrated.
+\noindent\textbf{What this equation says.} The first term is Faraday's law of
+electrolysis, which states that the amount of material converted is
+proportional to the electric charge passed. The second term is an Arrhenius
+rate law describing ordinary chemical attack of the oxide by the acid, which
+proceeds whether or not current is flowing. The film grows only as fast as the
+first term exceeds the second.
 
-\begin{plainbox}
-\textbf{Why bath temperature dominates.} The second term in
-Eq.~\eqref{eq:anodize} is Arrhenius, so it roughly doubles for every
-$+10\degC$. A bath that drifts warm therefore does two bad things at once: it
-thins the film, and it widens the pores. The part comes out lighter and duller.
-No other single variable has this double effect, which is why temperature
-control is the first thing any anodizing line invests in.
-\end{plainbox}
+\begin{symlist}
+\item[$x$] Oxide film thickness, in metres. Reported throughout in micrometres,
+where $1\um = 10^{-6}$\,m. Typical Type II values are 5 to $25\um$.
+\item[$t$] Time, in seconds. Reported in minutes, with typical anodizing times
+of 20 to 60 minutes.
+\item[$M_\mathrm{ox}$] Molar mass of aluminium oxide, $\mathrm{Al_2O_3}$, equal
+to $0.10196$\,kg/mol.
+\item[$j$] Current density, in amperes per square metre. Reported in
+A/dm$^2$, the industry convention, where $1$\,A/dm$^2 = 100$\,A/m$^2$. Typical
+Type II operation is 1.0 to 2.0\,A/dm$^2$.
+\item[$\eta$] Current efficiency, dimensionless, between 0 and 1. The fraction
+of the charge passed that ends up as retained oxide rather than being lost to
+oxygen evolution or to immediate re-dissolution at the pore base. Typically
+0.6 to 0.8, and modelled here as falling with both temperature and acid
+strength.
+\item[$z$] Number of electrons transferred per formula unit of oxide formed,
+equal to 6. Forming one $\mathrm{Al_2O_3}$ unit requires oxidising two aluminium
+atoms, each surrendering three electrons.
+\item[$F$] Faraday constant, $96\,485$\,C/mol. The electric charge carried by
+one mole of electrons.
+\item[$\rho_\mathrm{ox}$] Density of the anodic oxide, taken as
+$3100$\,kg/m$^3$. This is deliberately below the $3970$\,kg/m$^3$ of dense
+sapphire because the anodic film is porous and partly hydrated.
+\item[$k_0$] Pre-exponential factor of the dissolution rate law, in metres per
+second per gram per litre. Calibrated so that a bath at $20\degC$ and
+$180$\,g/L dissolves approximately $0.05\um$ per minute, the accepted figure for
+Type II baths.
+\item[$E_a$] Activation energy for chemical dissolution, taken as
+$65\,000$\,J/mol. This value governs how strongly the dissolution rate responds
+to temperature.
+\item[$R_g$] Universal gas constant, $8.314$\,J/(mol\,K). Written $R_g$ here to
+avoid confusion with reflectance $R$.
+\item[$T$] Absolute bath temperature, in kelvin. Reported in degrees Celsius,
+with typical Type II operation at 18 to $22\degC$.
+\item[{$[\mathrm{H_2SO_4}]$}] Sulfuric acid concentration, in grams per litre.
+Typical operation is 150 to 200\,g/L.
+\item[$m$] Reaction order with respect to acid concentration, taken as 1,
+meaning the dissolution rate is directly proportional to acid strength.
+\end{symlist}
 
-The dye lives in the pores, so dye loading scales with pore volume, that is,
-with porosity multiplied by thickness. Uptake saturates exponentially with
-immersion time and peaks near pH 5.5, where acid dyes are most readily adsorbed
-by the amphoteric oxide.
+\begin{keypoint}
+\textbf{Why bath temperature is the dominant lever.} The dissolution term
+contains temperature inside an exponential. Evaluating it shows the rate
+roughly doubles for every $10\degC$ rise. A bath that drifts warm therefore
+does two damaging things simultaneously: it thins the film, and it widens the
+pores. The part emerges lighter and duller. No other single variable produces
+this combined effect, which is why temperature control is the first investment
+any anodizing line makes.
+\end{keypoint}
 
-A dyed anodic film is a \emph{bulk absorber}, not an interference filter. Light
-crosses the film, reflects off the aluminium underneath, and crosses back, so
-the Beer--Lambert law applies over a double pass:
+\subsection{Porosity and dye uptake}
+
+The dye occupies the pores, so the quantity of dye a film can hold is
+proportional to the available pore volume, which is porosity multiplied by
+thickness. Uptake approaches saturation exponentially with immersion time:
+
+\begin{equation}
+c\,x \;\propto\; \underbrace{P\,x}_{\text{pore volume}}
+\;\times\; \underbrace{\left(1 - e^{-t_d/\tau}\right)}_{\text{time saturation}}
+\;\times\; \underbrace{\exp\!\left[-\tfrac{1}{2}\left(\frac{\mathrm{pH} - 5.5}{1.4}\right)^{2}\right]}_{\text{pH dependence}}
+\;\times\; \frac{c_b}{c_{b,0}}
+\label{eq:dye}
+\end{equation}
+
+\begin{symlist}
+\item[$c\,x$] Dye concentration multiplied by path length, the quantity that
+actually appears in the Beer-Lambert absorption law of
+Equation~\eqref{eq:beer}. Dimensionless as used here.
+\item[$P$] Porosity, the volume fraction of the film occupied by pores.
+Dimensionless, typically 0.10 to 0.15 for Type II. Modelled as increasing with
+both bath temperature and acid concentration.
+\item[$t_d$] Dye immersion time, in minutes. Typically 10 to 15.
+\item[$\tau$] Characteristic uptake time constant, in minutes. Shorter in a
+hotter dye bath because diffusion into the pores is faster.
+\item[$\mathrm{pH}$] Acidity of the dye bath. The Gaussian form centred on 5.5
+encodes the experimental observation that acid dye adsorption onto the
+amphoteric oxide surface peaks near this value and falls away on both sides.
+\item[$c_b$] Dye bath concentration, in grams per litre, with $c_{b,0}$ the
+nominal value of 3\,g/L used for normalisation.
+\end{symlist}
+
+\subsection{Optical response}
+
+A dyed anodic film is a \textbf{bulk absorber}, not an interference filter.
+Light crosses the transparent film, reflects from the aluminium beneath, and
+crosses back. The Beer-Lambert law therefore applies over a double pass:
 
 \begin{equation}
 R(\lambda) = R_\mathrm{surf}
 + \left(1 - R_\mathrm{surf}\right)^2 R_\mathrm{Al}(\lambda)\,
   e^{-2\varepsilon(\lambda)\,c\,x}
+\label{eq:beer}
 \end{equation}
 
-Because there is no interference term, dyed anodizing barely changes colour with
-viewing angle --- the exact opposite of the PVD stack considered next.
+\noindent\textbf{What this equation says.} Some light reflects straight off the
+film's outer surface without ever entering it, and that portion carries no
+colour. The remainder enters the film, is attenuated on the way down, reflects
+from the metal, and is attenuated again on the way back up. The factor of 2 in
+the exponent is that double pass.
+
+\begin{symlist}
+\item[$R_\mathrm{surf}$] Fresnel reflectance of the air to oxide interface,
+approximately 0.056 for an oxide refractive index near 1.62. This is the
+portion of light that never enters the film.
+\item[$(1 - R_\mathrm{surf})^2$] The fraction transmitted into the film and
+then back out again, hence the square.
+\item[$R_\mathrm{Al}(\lambda)$] Reflectance of the aluminium substrate,
+approximately 0.92 across the visible range.
+\item[$\varepsilon(\lambda)$] Molar absorptivity of the dye at wavelength
+$\lambda$. Represented as a sum of Gaussian absorption bands whose positions
+determine the perceived colour.
+\item[$c\,x$] Dye loading from Equation~\eqref{eq:dye}.
+\end{symlist}
+
+\begin{keypoint}
+\textbf{A dye absorbs the complement of the colour it appears.} A blue dye
+looks blue because it removes orange and red light from the reflected beam. Its
+absorption band therefore sits near $600\nm$, not in the blue. This is why the
+band positions in the model appear to be in the wrong place at first glance.
+\end{keypoint}
+
+Because Equation~\eqref{eq:beer} contains no interference term, a dyed anodic
+film barely changes colour with viewing angle. This is the exact opposite of
+the PVD stack described next, and the contrast turns out to matter.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{anodize_physics.png}
-\caption{Left: the reflectance of a black-dyed film across a $\pm 3\degC$ bath
-excursion. Right: the competition in Eq.~\eqref{eq:anodize} --- as the bath
-warms, back-dissolution accelerates and thickness falls (blue), while porosity
-rises (red, dashed).}
+\caption[Anodizing physics: temperature sensitivity]{Left: reflectance of a
+black dyed film across a $\pm 3\degC$ bath excursion. Right: the competition
+described by Equation~\eqref{eq:anodize}. As the bath warms, back dissolution
+accelerates and thickness falls (solid line), while porosity rises (dashed
+line).}
 \end{figure}
 
-\subsection{Route 2: PVD thin films}
+\section{Modelling the PVD route}
 
-A PVD coating is a stack of layers each a few hundred nanometres thick, which is
-comparable to the wavelength of visible light. Light reflected from the top of a
-layer therefore interferes with light reflected from its bottom, and the colour
-depends on the whole stack rather than on any one surface.
+\subsection{The transfer matrix method}
 
-The standard treatment assigns each layer a characteristic matrix,
+Because PVD layers are comparable in thickness to the wavelength of light, the
+reflection from a stack cannot be computed surface by surface. Multiple
+reflections within each layer interfere, and all of them must be summed
+consistently. The standard treatment assigns each layer a characteristic
+matrix:
 
 \begin{equation}
 M_j =
 \begin{bmatrix}
-\cos\delta_j & \dfrac{i\sin\delta_j}{\eta_j}\\[1.1em]
+\cos\delta_j & \dfrac{i\sin\delta_j}{\eta_j}\\[1.2em]
 i\,\eta_j \sin\delta_j & \cos\delta_j
-\end{bmatrix},
-\qquad
-\delta_j = \frac{2\pi\, t_j\, N_j \cos\theta_j}{\lambda}
+\end{bmatrix}
+\label{eq:charmat}
 \end{equation}
 
-where $N_j = n_j - ik_j$ is the complex refractive index and $\eta_j$ the tilted
-optical admittance. Multiplying the matrices maps the substrate admittance to
-the front surface, giving
+\noindent\textbf{What this equation says.} The matrix describes how the
+electric and magnetic fields of a light wave are transformed on passing through
+one layer. Its usefulness is that the effect of a whole stack is obtained by
+simply multiplying the individual matrices together, in order.
+
+\begin{symlist}
+\item[$M_j$] Characteristic matrix of layer $j$, a $2\times 2$ complex matrix.
+\item[$\delta_j$] Phase thickness of layer $j$, defined in
+Equation~\eqref{eq:phase}. It measures how much the wave's phase advances in
+crossing the layer.
+\item[$\eta_j$] Optical admittance of layer $j$, defined in
+Equation~\eqref{eq:admit}. It describes how readily the layer supports the
+propagating wave.
+\item[$i$] The imaginary unit. Complex arithmetic is essential here because it
+is what carries the phase information on which interference depends.
+\end{symlist}
+
+The phase thickness and admittance are
+
+\begin{align}
+\delta_j &= \frac{2\pi\, t_j\, N_j \cos\theta_j}{\lambda} \label{eq:phase}\\[0.5em]
+\eta_j &=
+\begin{cases}
+N_j \cos\theta_j, & \text{s polarised}\\[0.4em]
+N_j / \cos\theta_j, & \text{p polarised}
+\end{cases}
+\label{eq:admit}
+\end{align}
+
+\begin{symlist}
+\item[$t_j$] Physical thickness of layer $j$, in nanometres. Typically 80 to
+$400\nm$.
+\item[$N_j$] Complex refractive index of layer $j$, written $N = n - ik$. See
+Section~3.4.2.
+\item[$\theta_j$] Angle of propagation inside layer $j$, obtained from Snell's
+law. It is complex for an absorbing layer, which has no simple geometric
+interpretation but is mathematically correct.
+\item[$\lambda$] Wavelength in vacuum, in nanometres.
+\item[s, p] The two polarisation states of light, referring to whether the
+electric field oscillates perpendicular or parallel to the plane of incidence.
+They reflect differently at non normal incidence, so both are computed and
+averaged.
+\end{symlist}
+
+The assembled stack matrix maps the substrate admittance to the front surface:
 
 \begin{equation}
 \begin{bmatrix} B\\ C\end{bmatrix}
-= \left(\prod_j M_j\right)\begin{bmatrix} 1\\ \eta_\mathrm{sub}\end{bmatrix},
+= \left(\prod_{j=1}^{J} M_j\right)\begin{bmatrix} 1\\ \eta_\mathrm{sub}\end{bmatrix},
 \qquad
 Y = \frac{C}{B},
 \qquad
 R = \left|\frac{\eta_0 - Y}{\eta_0 + Y}\right|^2
+\label{eq:tmm}
 \end{equation}
 
-This is the same calculation performed by the commercial thin-film design
+\begin{symlist}
+\item[$B, C$] Normalised electric and magnetic field amplitudes at the front
+surface of the stack. Dimensionless and complex.
+\item[$\eta_\mathrm{sub}$] Optical admittance of the substrate.
+\item[$\eta_0$] Optical admittance of the surrounding medium, air, for which
+$n = 1$.
+\item[$Y$] Equivalent admittance of the entire coated surface. This single
+complex number summarises the whole stack.
+\item[$R$] Reflectance, the quantity fed into Equation~\eqref{eq:tristim}.
+Taking the squared magnitude converts the amplitude reflection coefficient into
+a power fraction, because intensity is proportional to amplitude squared.
+\item[$J$] Number of layers in the stack.
+\end{symlist}
+
+This is the identical calculation performed by the commercial thin film design
 packages Essential Macleod and TFCALC.
 
-\begin{plainbox}
-\textbf{A sign convention that silently destroys the answer.} Tabulated optical
-constants are published as $N = n + ik$. The matrix formulation above expects
-$N = n - ik$. Feeding the first into the second turns every absorbing layer into
-a \emph{gain} medium: the code runs, the plots look plausible, and reflectance
-quietly exceeds $100\,\%$. This was caught here by a test asserting
-$0 \leq R \leq 1$ for every stack at every angle, and that test is retained
-precisely because the failure is invisible without it.
-\end{plainbox}
+\begin{keypoint}
+\textbf{A sign convention that silently destroys the result.} Tabulated optical
+constants are published as $N = n + ik$, which pairs with one convention for
+how a wave is written mathematically. The matrix formulation above uses the
+opposite convention and expects $N = n - ik$. Supplying the first to the second
+converts every absorbing layer into a \emph{gain} medium, one that amplifies
+light rather than absorbing it. The code still runs, the plots still look
+plausible, and reflectance quietly exceeds 100\,\%. This error occurred during
+development and was caught by an automated check asserting that
+$0 \le R \le 1$ for every stack at every angle. That check is retained
+permanently, because the failure is otherwise invisible.
+\end{keypoint}
 
-The colour of a bulk nitride is controlled by its \emph{composition}, not its
-thickness. Titanium nitride absorbs strongly enough that past roughly
-$150\nm$ the film is optically opaque and the substrate beneath it becomes
-irrelevant. The variable that actually matters is the stoichiometry $x$ in
-$\mathrm{TiN}_x$, set on the tool by nitrogen partial pressure. As $x$ falls
-below one the film is nitrogen-starved and metal-rich: more free carriers raise
-the plasma frequency, the reflectance edge moves blue, and the gold drifts
-toward metallic silver.
+\subsection{Optical constants}
+
+Every material is described by a complex refractive index:
+
+\begin{equation}
+N(\lambda) = n(\lambda) - i\,k(\lambda)
+\label{eq:nk}
+\end{equation}
+
+\begin{symlist}
+\item[$n$] Real refractive index. Describes how much the material slows light,
+and therefore how much it bends and how strongly it reflects. Air is 1.0, water
+1.33, anodic alumina approximately 1.62.
+\item[$k$] Extinction coefficient. Describes how strongly the material absorbs
+light. Transparent materials such as $\mathrm{SiO_2}$ have $k$ effectively
+zero. Metals have $k$ of several units, meaning light penetrates only tens of
+nanometres before being extinguished.
+\end{symlist}
+
+For metals and metallic nitrides, $N$ is obtained from a Drude-Lorentz model of
+the dielectric function:
+
+\begin{equation}
+\epsilon(\omega) = \epsilon_\infty
+- \frac{\omega_p^2}{\omega^2 + i\Gamma\omega}
++ \sum_j \frac{f_j\,\omega_j^2}{\omega_j^2 - \omega^2 - i\gamma_j\omega},
+\qquad N = \sqrt{\epsilon}
+\label{eq:drude}
+\end{equation}
+
+\noindent\textbf{What this equation says.} It splits the material's optical
+response into two physical contributions. The second term describes free
+electrons, which are what make a metal shiny and reflective. The third term
+describes electrons bound in specific energy transitions, each behaving like a
+damped oscillator with its own resonant frequency. In titanium nitride it is
+precisely one of these bound transitions, absorbing in the blue, that produces
+the gold colour.
+
+\begin{symlist}
+\item[$\epsilon$] Complex dielectric function. The refractive index is its
+square root.
+\item[$\omega$] Angular frequency of the light, expressed in electronvolts
+through $E\,[\mathrm{eV}] = 1239.84 / \lambda\,[\mathrm{nm}]$. The visible range
+spans roughly 1.6 to 3.3\,eV.
+\item[$\epsilon_\infty$] High frequency dielectric constant, accounting for all
+contributions above the modelled range. Dimensionless, typically 1 to 5.
+\item[$\omega_p$] Plasma frequency, in eV. Sets how many free electrons the
+material has and therefore where its reflectance edge lies. Aluminium has a
+very high value near 15\,eV, which is why it reflects the entire visible
+spectrum and appears as a neutral mirror.
+\item[$\Gamma$] Drude damping constant, in eV. Represents how frequently free
+electrons scatter. Higher values make a metal duller.
+\item[$f_j$] Strength of the $j$th bound oscillator. Dimensionless.
+\item[$\omega_j$] Resonant frequency of the $j$th oscillator, in eV. This is
+where that transition absorbs.
+\item[$\gamma_j$] Damping of the $j$th oscillator, in eV. Controls how broad
+the absorption band is.
+\end{symlist}
+
+\subsection{Stoichiometry as the colour control}
+
+Titanium nitride absorbs strongly enough that beyond roughly $150\nm$ the film
+is optically opaque and the substrate beneath becomes irrelevant. Thickness
+therefore stops controlling colour. The variable that does control it is the
+composition, written $x$ in the formula $\mathrm{TiN}_x$, which is set on the
+deposition tool by the nitrogen partial pressure.
+
+\begin{defbox}
+\textbf{Stoichiometry.} $x = 1$ denotes exactly one nitrogen atom per titanium
+atom, the ideal composition. $x < 1$ denotes a nitrogen starved, metal rich
+film. $x > 1$ denotes a nitrogen stuffed film.
+\end{defbox}
+
+The model represents the effect of composition through
+Equation~\eqref{eq:drude} as follows. As $x$ falls below 1, more free carriers
+are present, so $\omega_p$ rises and the reflectance edge moves towards the
+blue, shifting the appearance from gold towards metallic silver.
+Simultaneously the bound oscillator responsible for the gold colour weakens,
+and increased point defect density broadens every spectral feature.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{pvd_physics.png}
-\caption{Left: reflectance of the PVD stack across a $\pm 4\,\%$ swing in
-nitrogen stoichiometry. Right: angular colour shift (``flop'') of the same
-interference stack --- the reason a part can pass inspection face-on and fail at
-a chamfer.}
+\caption[PVD physics: stoichiometry and angular shift]{Left: reflectance of the
+PVD stack across a $\pm 4\,\%$ swing in nitrogen stoichiometry. Right: angular
+colour shift of the same interference stack, which is the mechanism by which a
+part can pass inspection viewed face on and fail when viewed at a chamfer.}
 \end{figure}
 
-\subsection{Propagating variation}
+\section{Propagating process variation}
 
-Each process input is assigned a control tolerance, interpreted as a
-$\pm 3\sigma$ band, and sampled from a normal distribution. Every sample is
-pushed through the forward model. Capability follows as
+Each process input is assigned a control tolerance representing how tightly the
+line actually holds it. That tolerance is interpreted as a $\pm 3\sigma$ band,
+meaning the line holds the stated range essentially all of the time. Values are
+sampled from a normal distribution and each sample is pushed through the
+forward physics model. This is a Monte Carlo simulation, using 6000 samples
+throughout.
+
+Capability is then computed as
 
 \begin{equation}
 \Cpk = \frac{\min\left(\mathrm{USL} - \mu,\; \mu - \mathrm{LSL}\right)}{3\sigma},
 \qquad
-\Cpk^\mathrm{upper} = \frac{\mathrm{USL} - \mu}{3\sigma}
+\Cpk^{\mathrm{upper}} = \frac{\mathrm{USL} - \mu}{3\sigma}
+\label{eq:cpk}
 \end{equation}
 
-the second form applying to \dE, for which there is no such thing as too little
-colour error. Inputs are ranked by standardised regression coefficients, which
-give the response change per standard deviation of input and therefore already
-fold in both the physical sensitivity and the current control spread. That is
-the correct ranking for deciding which tolerance to buy down.
+\noindent\textbf{What this equation says.} Measure the distance from the
+process mean to the nearer specification limit, then express it as a multiple
+of three standard deviations. If that distance equals exactly three standard
+deviations the index is 1.0.
 
-\subsection{Experimental design}
+\begin{symlist}
+\item[$\mu$] Mean of the simulated response.
+\item[$\sigma$] Standard deviation of the simulated response.
+\item[USL, LSL] Upper and lower specification limits. For film thickness both
+apply, at 8 and $12\um$. For \dE\ only an upper limit applies, at 1.0, because
+there is no such thing as too little colour error. The second form of
+Equation~\eqref{eq:cpk} is used in that case.
+\item[$3\sigma$] The conventional denominator. A normal distribution places
+99.73\,\% of its values within $\pm 3\sigma$ of the mean.
+\end{symlist}
 
-A Box--Behnken design is used throughout. Unlike a central composite design it
-places no run outside the stated factor range, which matters for a real bath:
-axial points would demand acid concentrations the line cannot hold. A full
-quadratic response surface is fitted on coded levels, so that coefficient
-magnitudes are directly comparable.
+\subsection{Ranking the inputs}
 
-% =====================================================================
-\section{Verification}
+Process inputs are ranked by \textbf{standardised regression coefficients},
+obtained by regressing the response on inputs that have first been converted to
+standard scores:
 
-Before any result is reported, the implementation is checked against published
-values. The suite contains 62 tests; the load-bearing ones are:
+\begin{equation}
+\beta_i = \frac{\partial\, z_y}{\partial\, z_{x_i}},
+\qquad
+z_q = \frac{q - \bar{q}}{\sigma_q}
+\label{eq:beta}
+\end{equation}
+
+\noindent\textbf{Why this ranking and not another.} A raw sensitivity would
+report how much the colour changes per degree of temperature. That is
+incomplete, because it ignores how much the temperature actually varies in
+practice. The standardised coefficient reports how much the colour changes per
+\emph{standard deviation} of temperature, and therefore folds together the
+physical sensitivity and the current control spread. That combination is
+precisely what determines which tolerance is worth money to tighten.
+
+\begin{symlist}
+\item[$\beta_i$] Standardised regression coefficient for input $i$.
+Dimensionless.
+\item[$z_q$] Standard score of quantity $q$, obtained by subtracting its mean
+and dividing by its standard deviation.
+\item[$\bar{q}, \sigma_q$] Mean and standard deviation of $q$.
+\end{symlist}
+
+\section{Experimental design}
+
+A Box-Behnken design is used throughout. For $k$ factors it takes every pair of
+factors to all four combinations of their high and low levels while holding all
+remaining factors at their centre value, plus replicated centre points.
+
+\begin{keypoint}
+\textbf{Why Box-Behnken rather than a central composite design.} A central
+composite design requires axial points that lie \emph{outside} the stated
+factor range. For a real process bath this is often impossible: the design
+would demand acid concentrations or temperatures the line cannot physically
+hold, or that would damage the parts. A Box-Behnken design places no run
+outside the stated range, at the cost of estimating the extreme corners less
+precisely.
+\end{keypoint}
+
+The run count is $2k(k-1)$ factor points plus centre replicates, giving 15 runs
+for three factors and 27 for four. A full quadratic response surface is then
+fitted:
+
+\begin{equation}
+y = b_0 + \sum_i b_i x_i + \sum_i b_{ii} x_i^2 + \sum_{i<j} b_{ij} x_i x_j
+\label{eq:rsm}
+\end{equation}
+
+\begin{symlist}
+\item[$y$] Predicted response, either \dE\ or film thickness.
+\item[$b_0$] Intercept, the predicted response at the centre of the design.
+\item[$b_i$] Linear coefficients. These capture the main effect of each factor.
+\item[$b_{ii}$] Quadratic coefficients. These capture curvature, meaning cases
+where the response has a minimum or maximum inside the factor range rather than
+simply rising or falling across it.
+\item[$b_{ij}$] Interaction coefficients. These capture cases where the effect
+of factor $i$ depends on the level of factor $j$.
+\item[$x_i$] Factor levels in \textbf{coded} units, scaled so that the low
+level is $-1$ and the high level is $+1$. Coding matters: on coded levels the
+coefficients are directly comparable, so the largest coefficient genuinely
+identifies the largest effect. On raw engineering units this would not hold,
+because a coefficient in degrees Celsius cannot be compared with one in grams
+per litre.
+\end{symlist}
+
+% ==========================================================================
+\chapter{Verification}
+
+No result is reported before the implementation has been checked against
+independently published values. The automated test suite contains 62 checks.
+The load bearing ones are recorded below.
 
 \begin{table}[H]
 \centering
 \small
-\begin{tabular}{@{}p{0.44\textwidth}p{0.50\textwidth}@{}}
+\begin{tabular}{@{}p{0.40\textwidth}p{0.54\textwidth}@{}}
 \toprule
-\textbf{Check} & \textbf{Result} \\
+\textbf{Check} & \textbf{Result and significance} \\
 \midrule
-All 13 CIEDE2000 reference pairs of Sharma, Wu \& Dalal (2005) & Reproduced to
-within $10^{-4}$. These pairs exist specifically to exercise the hue-wraparound
-and rotation terms that naive implementations get wrong. \\
+All 13 CIEDE2000 reference pairs of Sharma, Wu and Dalal (2005) &
+Reproduced to within $10^{-4}$. These pairs were constructed specifically to
+exercise the hue wraparound and rotation terms that naive implementations of
+Equation~\eqref{eq:de00} get wrong. \\
 \addlinespace
-Perfect reflecting diffuser under D65 & Returns exactly $L^*=100$,
-$a^*=b^*=0$. \\
+Perfect reflecting diffuser under D65 &
+Returns exactly $L^* = 100$, $a^* = b^* = 0$, confirming the normalisation of
+Equation~\eqref{eq:knorm} is correct. \\
 \addlinespace
-D65 white point & $(95.047,\,100,\,108.883)$, matching the CIE tabulation. \\
+D65 reference white point &
+$(95.047,\,100,\,108.883)$, matching the CIE tabulation exactly. \\
 \addlinespace
-$0 \leq R \leq 1$ for every stack at every angle & Passes; this is the check
-that caught the sign-convention error. \\
+$0 \le R \le 1$ for every stack at every angle &
+Passes. This is the check that detected the sign convention error described in
+Section~3.4.1. \\
 \addlinespace
-Nominal Type II recipe ($1.5$ A/dm$^2$, $30$ min, $20\degC$, $180$ g/L) &
-Returns $9.66\um$ against the $\sim\!10\um$ industry specification. This is the
-calibration anchor for the entire anodizing model. \\
+Nominal Type II recipe: 1.5\,A/dm$^2$, 30 min, $20\degC$, 180\,g/L &
+Returns $9.66\um$ against the industry figure of approximately $10\um$. This
+agreement is the calibration anchor for the entire anodizing model. \\
 \addlinespace
-Back-dissolution temperature dependence & Verified to fall between $1.8\times$
-and $3.0\times$ per $+10\degC$. \\
+Temperature dependence of back dissolution &
+Verified to fall between $1.8\times$ and $3.0\times$ per $10\degC$, consistent
+with the accepted rule of thumb of approximately doubling. \\
 \addlinespace
-Response-surface fitter on a known quadratic & Recovers every coefficient
-exactly, $R^2 = 1$. \\
+Response surface fitter applied to a known quadratic &
+Recovers every coefficient of Equation~\eqref{eq:rsm} exactly, with
+$R^2 = 1$. \\
+\addlinespace
+Opaque film on two different substrates &
+Returns the same colour to within $\dE = 0.1$, confirming the optical opacity
+argument used in Section~3.4.3. \\
 \bottomrule
 \end{tabular}
-\caption{Verification summary. All checks are automated and run in continuous
-integration.}
+\caption{Verification summary. All checks are automated and execute in
+continuous integration on Python 3.10 to 3.12.}
 \end{table}
 
-% =====================================================================
-\section{Results}
+% ==========================================================================
+\chapter{Results}
 
-\subsection{Anodizing: colour is easy, thickness is not}
+\section{Anodizing route}
 
-At the nominal window with a black dye, the process is comfortably capable on
-colour and marginal on thickness.
+At the nominal process window with a black dye, the process is comfortably
+capable in colour and marginal in thickness.
 
 \begin{table}[H]
 \centering
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
-\textbf{Response} & \textbf{Mean} & \textbf{$\sigma$} & \textbf{Spec} & \textbf{\Cpk} \\
+\textbf{Response} & \textbf{Mean} & \textbf{$\sigma$} & \textbf{Specification} & \textbf{\Cpk} \\
 \midrule
-\dE\ vs colour master & $0.032$ & $0.019$ & $\leq 1.0$ & $17.04$ \\
-Oxide thickness       & $9.653\um$ & $0.307\um$ & $8$--$12\um$ & $1.80$ \\
+\dE\ against colour master & $0.032$ & $0.019$ & $\le 1.0$ & $17.04$ \\
+Oxide thickness            & $9.653\um$ & $0.307\um$ & $8$ to $12\um$ & $1.80$ \\
 \midrule
-\multicolumn{4}{@{}l}{Combined yield} & $100.00\,\%$ \\
+\multicolumn{4}{@{}l}{\textbf{Combined yield}} & $\mathbf{100.00\,\%}$ \\
 \bottomrule
 \end{tabular}
-\caption{Anodizing capability, $n=6000$ Monte Carlo samples.}
+\caption{Anodizing capability from 6000 Monte Carlo samples.}
 \end{table}
 
-The Box--Behnken response surface fits thickness essentially perfectly
-($R^2 = 0.99999$) and colour well ($R^2 = 0.932$). The thickness model is
-dominated by linear terms in current density, bath temperature and acid
-concentration, exactly as Eq.~\eqref{eq:anodize} demands.
+The Box-Behnken response surface fits thickness essentially perfectly, with
+$R^2 = 0.99999$, and fits colour well, with $R^2 = 0.932$. The thickness model
+is dominated by linear terms in current density, bath temperature and acid
+concentration, exactly as Equation~\eqref{eq:anodize} requires. This agreement
+between an independently fitted empirical surface and the governing equation is
+itself a useful consistency check.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{anodize_capability.png}
-\caption{Anodizing capability. Colour (left) sits far inside its limit;
-thickness (centre) consumes most of its window; the Pareto (right) identifies
-dye concentration and current density as the leading contributors to colour
-variation.}
+\caption[Anodizing capability]{Anodizing capability. Colour (left) sits far
+inside its specification limit. Thickness (centre) consumes most of its
+available window. The Pareto chart (right) identifies dye concentration and
+current density as the leading contributors to colour variation.}
 \end{figure}
 
-\subsection{The colour itself is a capability decision}
+\section{The effect of colour selection}
 
-The most consequential result in this study comes from changing nothing about
-the process. Holding the window, the tolerances and the sample size fixed, and
-varying only which dye is in the tank:
+The most consequential result in this study arises from changing nothing at all
+about the process. Holding the process window, the control tolerances and the
+sample size fixed, and varying only which dye is in the tank, produces the
+following:
 
 \begin{table}[H]
 \centering
@@ -448,7 +1193,7 @@ varying only which dye is in the tank:
 \midrule
 Black          & $0.032$ & $0.019$ & $16.68$ & $100.00\,\%$ \\
 Graphite grey  & $0.203$ & $0.158$ & $1.68$  & $99.96\,\%$ \\
-Gold / bronze  & $0.549$ & $0.415$ & $0.36$  & $85.20\,\%$ \\
+Gold or bronze & $0.549$ & $0.415$ & $0.36$  & $85.20\,\%$ \\
 Red            & $0.566$ & $0.427$ & $0.34$  & $84.24\,\%$ \\
 Blue           & $0.668$ & $0.512$ & $0.22$  & $77.72\,\%$ \\
 \bottomrule
@@ -456,63 +1201,70 @@ Blue           & $0.668$ & $0.512$ & $0.22$  & $77.72\,\%$ \\
 \caption{Identical process, identical tolerances, different dye.}
 \end{table}
 
-A saturated black sits deep in Beer--Lambert saturation: the exponential has
-already bottomed out, so bath noise moves the reflectance hardly at all. Pale
-and chromatic finishes sit on the steep part of the same exponential, where the
-same noise produces a visible shift.
+The explanation lies in Equation~\eqref{eq:beer}. A saturated black sits deep
+in Beer-Lambert saturation: the exponential has already fallen close to zero,
+so further variation in dye loading moves the reflectance hardly at all. Pale
+and chromatic finishes sit on the steep portion of the same exponential, where
+identical variation produces a visible shift.
 
-\begin{plainbox}
+\begin{keypoint}
 \textbf{Implication.} Yield swings by 22 percentage points with no process
-change whatsoever. The decision that caused it was made in a design review, by
-someone choosing a colour, long before any process engineer saw the part. This
-argues for capability analysis being run \emph{at colour selection}, not after
-the line is commissioned.
-\end{plainbox}
+change whatsoever. The decision responsible was taken in a design review, by
+someone selecting a colour, long before any process engineer saw the part. This
+argues for capability analysis being performed \emph{at the point of colour
+selection}, not after the line has been commissioned.
+\end{keypoint}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.72\textwidth]{anodize_dye_robustness.png}
-\caption{Colour capability by dye choice under an identical process window. Only
-black and graphite clear the $\Cpk = 1.33$ gate.}
+\includegraphics[width=0.74\textwidth]{anodize_dye_robustness.png}
+\caption[Colour capability by dye choice]{Colour capability by dye choice under
+an identical process window. Only black and graphite clear the $\Cpk = 1.33$
+gate.}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{anodize_swatches.png}
-\caption{Rendered appearance across a $\pm 3\degC$ bath excursion, with the
-corresponding \dE. Swatches are computed from the simulated spectra through the
-same CIE pipeline, then converted to sRGB for display.}
+\caption[Rendered anodized colour versus bath temperature]{Rendered appearance
+across a $\pm 3\degC$ bath excursion, with the corresponding \dE. Swatches are
+computed from the simulated spectra through the same colourimetric pipeline,
+then converted to sRGB for display.}
 \end{figure}
 
-\subsection{PVD: one variable dominates, and it is not thickness}
+\section{PVD route}
 
 The PVD interference stack fails at tolerances that would be entirely normal on
 a production tool.
 
 \begin{table}[H]
 \centering
-\begin{tabular}{@{}lrrr@{}}
+\begin{tabular}{@{}lrlr@{}}
 \toprule
-\textbf{Quantity} & \textbf{Value} & \multicolumn{2}{l}{\textbf{Variance share}} \\
+\textbf{Quantity} & \textbf{Value} & \textbf{Variance contribution} & \\
 \midrule
-Mean \dE                 & $1.042$   & Stoichiometry   & $69.8\,\%$ \\
-$\sigma_{\dE}$           & $0.773$   & Overcoat thickness & $27.8\,\%$ \\
-Colour \Cpk              & $-0.018$  & TiN thickness   & $2.5\,\%$ \\
-Yield against $\dE \leq 1.0$ & $56.4\,\%$ & & \\
+Mean \dE                     & $1.042$    & Stoichiometry      & $69.8\,\%$ \\
+$\sigma_{\dE}$               & $0.773$    & Overcoat thickness & $27.8\,\%$ \\
+Colour \Cpk                  & $-0.018$   & TiN thickness      & $2.5\,\%$ \\
+Yield against $\dE \le 1.0$  & $56.4\,\%$ &                    & \\
 \bottomrule
 \end{tabular}
 \caption{PVD capability for the stack air / SiO$_2$ $90\nm$ / TiN $300\nm$ /
-Ti $80\nm$ / SS304, $n=6000$.}
+Ti $80\nm$ / SS304, from 6000 samples.}
 \end{table}
 
-A negative \Cpk\ means the process mean already sits outside the specification
-limit --- the average part is a reject. The response surface for \dE\ fits well
-($R^2 = 0.996$, adjusted $0.989$) and is dominated by \emph{quadratic} terms in
-stoichiometry, meaning the colour penalty grows faster than linearly as
-nitrogen control drifts in either direction.
+A negative capability index means the process mean already lies outside the
+specification limit. The average part is a reject, which is a materially
+different situation from a process that is merely too variable.
 
-Greedily tightening the dominant tolerance until $\Cpk \geq 1.33$ converges in
-18 rounds:
+The response surface for \dE\ fits well, with $R^2 = 0.996$ and adjusted
+$R^2 = 0.989$, and is dominated by \emph{quadratic} terms in stoichiometry.
+Physically this means the colour penalty grows faster than linearly as nitrogen
+control drifts, and it does so in both directions. Drifting nitrogen rich is
+penalised as heavily as drifting nitrogen lean.
+
+Applying the greedy tightening procedure, which repeatedly identifies the
+dominant contributor and reduces its tolerance, converges after 18 iterations:
 
 \begin{table}[H]
 \centering
@@ -520,142 +1272,361 @@ Greedily tightening the dominant tolerance until $\Cpk \geq 1.33$ converges in
 \toprule
 \textbf{Control} & \textbf{Current} & \textbf{Required} & \textbf{Change} \\
 \midrule
-TiN stoichiometry (nitrogen flow) & $\pm 0.040$  & $\pm 0.0067$ & $6.0\times$ tighter \\
-SiO$_2$ overcoat thickness        & $\pm 8.0\nm$ & $\pm 3.0\nm$ & $2.7\times$ tighter \\
-TiN thickness                     & $\pm 20\nm$  & $\pm 20\nm$  & unchanged \\
+TiN stoichiometry, set by nitrogen flow & $\pm 0.040$  & $\pm 0.0067$ & $6.0\times$ tighter \\
+SiO$_2$ overcoat thickness              & $\pm 8.0\nm$ & $\pm 3.0\nm$ & $2.7\times$ tighter \\
+TiN thickness                           & $\pm 20\nm$  & $\pm 20\nm$  & unchanged \\
 \bottomrule
 \end{tabular}
-\caption{Control limits required to reach $\Cpk = 1.33$.}
+\caption{Control limits required to achieve $\Cpk = 1.33$.}
 \end{table}
 
-\begin{plainbox}
-\textbf{The counter-intuitive part.} TiN thickness is the variable an engineer
-would instinctively control, and it is almost irrelevant --- it accounts for
-$2.5\,\%$ of the colour variance and its tolerance never needs tightening. The
-film is optically opaque past roughly $150\nm$, so adding more of it changes
-nothing an observer can see. Composition is the real lever, and composition is
-controlled by a gas flow, not by a deposition timer.
-\end{plainbox}
+\begin{keypoint}
+\textbf{The counter-intuitive result.} TiN thickness is the variable an
+engineer would instinctively control, and it is almost irrelevant. It accounts
+for 2.5\,\% of the colour variance and its tolerance never requires tightening.
+The film is optically opaque beyond roughly $150\nm$, so depositing more of it
+changes nothing an observer can detect. Composition is the real lever, and
+composition is governed by a gas flow controller, not by a deposition timer.
+\end{keypoint}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{pvd_capability.png}
-\caption{PVD capability. A large fraction of the simulated distribution (left)
-lies beyond the specification. Stoichiometry dominates the Pareto (centre). The
-colour penalty versus nitrogen control (right) is steeply quadratic, so
-symmetric drift in either direction is punished.}
+\caption[PVD capability]{PVD capability. A substantial fraction of the
+simulated distribution (left) lies beyond the specification limit.
+Stoichiometry dominates the Pareto chart (centre). The colour penalty against
+nitrogen control (right) is steeply quadratic, so symmetric drift in either
+direction is penalised.}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{pvd_swatches.png}
-\caption{Rendered PVD appearance across the stoichiometry range. A $\pm 8\,\%$
-composition swing takes the finish from pale champagne to warm bronze.}
+\caption[Rendered PVD colour versus stoichiometry]{Rendered PVD appearance
+across the stoichiometry range. An $8\,\%$ composition swing carries the finish
+from pale champagne to warm bronze.}
 \end{figure}
 
-\subsection{The two routes fail differently}
+\section{Comparison of the two routes}
 
 \begin{table}[H]
 \centering
-\begin{tabular}{@{}lll@{}}
+\small
+\begin{tabular}{@{}p{3.4cm}p{5.1cm}p{5.1cm}@{}}
 \toprule
- & \textbf{Anodize + black dye} & \textbf{PVD interference stack} \\
+ & \textbf{Anodize with black dye} & \textbf{PVD interference stack} \\
 \midrule
 Binding constraint   & Film thickness      & Composition \\
+\addlinespace
 Colour \Cpk          & $16.68$             & $-0.018$ \\
-Limiting \Cpk        & $1.80$ (thickness)  & $-0.018$ (colour) \\
-Dominant variable    & Current density, dye conc. & Nitrogen stoichiometry \\
-Angular colour shift & Negligible (bulk absorber) & Significant (interference) \\
-What to instrument   & Bath temperature, coating thickness gauge & Mass-flow control, optical monitor \\
+\addlinespace
+Limiting \Cpk        & $1.80$, from thickness & $-0.018$, from colour \\
+\addlinespace
+Dominant variable    & Current density and dye concentration & Nitrogen stoichiometry \\
+\addlinespace
+Angular colour shift & Negligible, being a bulk absorber & Significant, being an interference stack \\
+\addlinespace
+What to instrument   & Bath temperature control, coating thickness gauge & Mass flow control, in chamber optical monitor \\
 \bottomrule
 \end{tabular}
-\caption{Comparative failure modes.}
+\caption{Comparative failure modes of the two finishing routes.}
 \end{table}
 
-A control plan written for one route is close to useless for the other. The
-anodizing line needs thickness metrology and temperature control; the PVD line
-needs gas-flow precision and in-chamber optical monitoring. Neither conclusion
-is reachable without modelling the physics --- both routes produce ``a coloured
-part'', and their process sheets look superficially similar.
+% ==========================================================================
+\chapter{Discussion}
 
-% =====================================================================
-\section{Limitations}
+\section{Why a control plan does not transfer between routes}
 
-These results are simulation. Stating the boundaries precisely is part of the
-result.
+The comparison in Table~5.5 shows that the two routes fail in entirely
+different places. The anodizing line requires thickness metrology and
+temperature control. The PVD line requires gas flow precision and in chamber
+optical monitoring. Neither conclusion is reachable without modelling the
+underlying physics, because both routes produce what a process sheet would
+describe as a coloured part, and their documentation looks superficially
+similar.
 
-\begin{enumerate}[leftmargin=1.4em, itemsep=4pt]
-  \item \textbf{Optical constants are representative literature fits}, not
-  measurements of a specific supplier's coating. They reproduce the correct
-  colour family and the correct dispersion shape, which is what a
-  \emph{sensitivity} study requires: the conclusions concern how strongly colour
-  responds to process variation, and that is governed by stack geometry and the
-  shape of $n(\lambda)$ rather than by the third decimal place of any oscillator
-  parameter. Absolute colour prediction against a physical master would require
-  measured $n,k$ data, which the code accepts as a drop-in replacement.
+This has a practical consequence. An organisation that has developed process
+control expertise on one route should not assume that expertise transfers. The
+instruments differ, the critical variables differ, and the relationship between
+the two differs.
 
-  \item \textbf{The dye-uptake and porosity relations are phenomenological.}
-  They are fitted to published Type II behaviour, not derived from first
-  principles. Trends are trustworthy; absolute dye loadings are not.
+\section{Why thickness is the wrong instinct for PVD}
 
-  \item \textbf{Capability here is short-term.} Samples are drawn at fixed
-  nominal settings, so what is computed is within-batch capability. Real
-  long-term $P_{pk}$ on a line will be worse, because it additionally carries
-  drift between bath changes, rack position, and operator.
+The result that TiN thickness contributes only 2.5\,\% of colour variance
+deserves emphasis, because it contradicts a reasonable engineering intuition.
+Thickness is easy to measure, easy to control, and in most coating contexts it
+is the primary specification. Here it is nearly irrelevant.
 
-  \item \textbf{No experimental validation.} No coupons were anodized and no
-  spectrophotometer readings were taken. This is the single largest gap, and the
-  natural next step. The code is deliberately structured so that a measured
-  dataset drops directly into the existing comparison path.
-\end{enumerate}
+The reason is optical opacity. Equation~\eqref{eq:nk} gives titanium nitride an
+extinction coefficient of order 2 across the visible range, which corresponds
+to an absorption depth of tens of nanometres. A $300\nm$ film is therefore many
+absorption depths thick. Light that enters it does not return. Adding a further
+$50\nm$ changes nothing an observer can detect, because that additional
+material sits behind a region light never reaches.
 
-% =====================================================================
+\section{Why the colour selection result matters most}
+
+Of the findings in Chapter~5, the dye comparison has the largest practical
+consequence, because it identifies a lever that costs nothing to use and is
+available earliest.
+
+Every other finding in this report describes an improvement that must be bought:
+tighter mass flow controllers, better temperature control, additional
+metrology. The colour selection finding describes an improvement that is
+obtained by making a different decision at no capital cost, provided it is made
+before the finish is committed. A 22 percentage point yield difference is larger
+than most process improvement programmes deliver.
+
+The organisational obstacle is that the decision sits with industrial design,
+while the consequence lands on manufacturing. Making that connection visible
+early is a process engineering responsibility even though the decision is not a
+process engineering decision.
+
+% ==========================================================================
+\chapter{Limitations}
+
+These results are derived entirely from simulation. Stating the boundaries
+precisely is part of the result, and each limitation below is stated with its
+consequence for how the findings may be used.
+
+\section{Optical constants are representative, not measured}
+
+The Drude-Lorentz parameters in Equation~\eqref{eq:drude} are representative
+literature fit values for each material class. They are not measurements of any
+specific supplier's coating.
+
+\textbf{Consequence.} They reproduce the correct colour family and the correct
+dispersion shape, which is what a \emph{sensitivity} study requires. The
+conclusions of this report concern how strongly colour responds to process
+variation, and that behaviour is governed by stack geometry and by the shape of
+$n(\lambda)$, not by the third decimal place of any oscillator parameter. The
+absolute $L^*a^*b^*$ values reported here should \emph{not} be treated as
+predictions of a physical coating. Absolute colour prediction against a real
+colour master would require measured optical constants, which the software
+accepts as a drop in replacement.
+
+\section{Empirical relations in the anodizing model}
+
+The porosity and dye uptake relations, Equation~\eqref{eq:dye} in particular,
+are phenomenological. They were constructed to reproduce published Type II
+behaviour rather than derived from first principles.
+
+\textbf{Consequence.} Trends are trustworthy. Absolute dye loadings are not.
+
+\section{Capability computed here is short term}
+
+Samples are drawn at fixed nominal settings, so what
+Equation~\eqref{eq:cpk} computes is within batch, short term capability.
+
+\textbf{Consequence.} Long term capability on a real line will be worse,
+because it additionally carries drift between bath changes, variation with rack
+position, differences between operators and shifts, and gradual bath ageing.
+The figures in Chapter~5 should therefore be read as an optimistic bound. A
+process that achieves $\Cpk = 1.33$ in this model would require further margin
+to achieve it in production.
+
+\section{No experimental validation}
+
+No coupons were anodized, no stacks were deposited, and no spectrophotometer
+readings were taken.
+
+\textbf{Consequence.} This is the single largest gap in the study and the
+natural next step. A validation exercise of nine anodized coupons, spanning
+three bath temperatures and three current densities with colour measured on a
+calibrated instrument, would be sufficient to confirm or correct the anodizing
+half. The software is deliberately structured so that a measured dataset drops
+directly into the existing comparison path.
+
+% ==========================================================================
+\chapter{Conclusions and Recommendations}
+
 \section{Conclusions}
 
-\begin{enumerate}[leftmargin=1.4em, itemsep=4pt]
-  \item A single physics-to-colour-to-capability pipeline can serve two
-  physically unrelated finishing routes, making them directly comparable on the
-  only metric that matters commercially --- yield against a colour
-  specification.
+\begin{enumerate}[leftmargin=1.6em, itemsep=5pt]
 
-  \item The PVD interference stack studied here is not capable at realistic
-  tolerances ($56.4\,\%$ yield, $\Cpk = -0.018$). Reaching $\Cpk = 1.33$ requires
-  sixfold tighter nitrogen control, and no improvement whatsoever in the
-  thickness control an engineer would instinctively tighten first.
+\item A single pipeline running from physics to colour to capability can serve
+two physically unrelated finishing routes. This makes them directly comparable
+on the metric that matters commercially, which is yield against a colour
+specification.
 
-  \item Anodized black is colour-robust and thickness-limited; the constraint
-  and therefore the entire control strategy is the opposite of the PVD case.
+\item The PVD interference stack examined here is not capable at realistic
+tolerances, yielding 56.4\,\% with $\Cpk = -0.018$. Achieving $\Cpk = 1.33$
+requires nitrogen control six times tighter, and requires no improvement
+whatsoever in the thickness control an engineer would instinctively tighten
+first.
 
-  \item Cosmetic capability should be assessed at the point of \emph{colour
-  selection}. Changing only the dye, with the process held completely fixed,
-  moved yield from $100\,\%$ to $77.7\,\%$. That is a larger effect than most
-  process improvements could recover, and it is free to avoid if it is
-  considered early enough.
+\item Anodized black is robust in colour and limited by film thickness. The
+constraint, and therefore the entire control strategy, is the opposite of the
+PVD case.
+
+\item Cosmetic capability should be assessed at the point of colour selection.
+Changing only the dye, with the process held entirely fixed, moved yield from
+100\,\% to 77.7\,\%. That effect is larger than most process improvements could
+recover, and it is free to avoid provided it is considered early enough.
+
 \end{enumerate}
 
-% =====================================================================
-\section*{Reproducibility}
-\addcontentsline{toc}{section}{Reproducibility}
+\section{Recommendations}
 
-Every number and figure in this report is regenerated by a single command:
+\begin{enumerate}[leftmargin=1.6em, itemsep=5pt]
+
+\item \textbf{Introduce a capability screen at colour selection.} Before a
+finish is committed, evaluate the predicted capability of the proposed colour
+under the intended process window. Reserve pale and chromatic finishes for
+applications where the tighter process control is justified.
+
+\item \textbf{For PVD, prioritise mass flow control.} Investment should be
+directed towards nitrogen partial pressure precision and towards in chamber
+optical monitoring. Investment in deposition timing precision will not improve
+colour yield.
+
+\item \textbf{For anodizing, prioritise bath temperature control and thickness
+metrology.} These address the two mechanisms that
+Equation~\eqref{eq:anodize} identifies as binding.
+
+\item \textbf{Validate experimentally before relying on absolute values.} A
+nine coupon anodizing trial with calibrated colour measurement is sufficient to
+confirm the anodizing model. Until that is done, use the model for ranking and
+for sensitivity, not for absolute colour prediction.
+
+\item \textbf{Extend the model to long term capability} once production data is
+available, so that between batch drift can be included and the optimistic bound
+of Section~7.3 removed.
+
+\end{enumerate}
+
+% ==========================================================================
+\appendix
+
+\chapter{Nomenclature}
+
+\begin{longtable}{@{}p{2.3cm}p{8.6cm}p{3.4cm}@{}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} & \textbf{Units} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Symbol} & \textbf{Meaning} & \textbf{Units} \\
+\midrule
+\endhead
+\multicolumn{3}{@{}l}{\textit{Colourimetry}}\\
+$\lambda$ & Wavelength of light & nm \\
+$R(\lambda)$ & Reflectance factor & dimensionless, 0 to 1 \\
+$S(\lambda)$ & Illuminant spectral power distribution & relative \\
+$\bar{x},\bar{y},\bar{z}$ & CIE 1931 colour matching functions & dimensionless \\
+$X,Y,Z$ & Tristimulus values & dimensionless \\
+$X_n,Y_n,Z_n$ & Reference white tristimulus values & dimensionless \\
+$k$ & Colourimetric normalising constant & dimensionless \\
+$L^*$ & Lightness & 0 to 100 \\
+$a^*$ & Green to red coordinate & dimensionless \\
+$b^*$ & Blue to yellow coordinate & dimensionless \\
+\dE & CIEDE2000 colour difference & dimensionless \\
+$S_L,S_C,S_H$ & CIEDE2000 weighting functions & dimensionless \\
+$R_T$ & CIEDE2000 rotation term & dimensionless \\
+$k_L,k_C,k_H$ & CIEDE2000 parametric factors & dimensionless \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{Anodizing}}\\
+$x$ & Oxide film thickness & m, reported in $\mu$m \\
+$t$ & Time & s, reported in min \\
+$M_\mathrm{ox}$ & Molar mass of Al$_2$O$_3$ & 0.10196 kg/mol \\
+$j$ & Current density & A/m$^2$, reported in A/dm$^2$ \\
+$\eta$ & Current efficiency & dimensionless, 0 to 1 \\
+$z$ & Electrons per formula unit & 6 \\
+$F$ & Faraday constant & 96\,485 C/mol \\
+$\rho_\mathrm{ox}$ & Anodic oxide density & 3100 kg/m$^3$ \\
+$k_0$ & Dissolution pre-exponential factor & m/s per g/L \\
+$E_a$ & Dissolution activation energy & 65\,000 J/mol \\
+$R_g$ & Universal gas constant & 8.314 J/(mol K) \\
+$T$ & Absolute temperature & K, reported in $^\circ$C \\
+$[\mathrm{H_2SO_4}]$ & Sulfuric acid concentration & g/L \\
+$m$ & Reaction order in acid & 1 \\
+$P$ & Film porosity & volume fraction \\
+$V$ & Cell voltage & V \\
+$\varepsilon(\lambda)$ & Dye molar absorptivity & relative \\
+$c$ & Dye concentration in film & relative \\
+$t_d$ & Dye immersion time & min \\
+$\tau$ & Dye uptake time constant & min \\
+$R_\mathrm{surf}$ & Air to oxide Fresnel reflectance & dimensionless \\
+$R_\mathrm{Al}$ & Aluminium substrate reflectance & dimensionless \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{Thin film optics}}\\
+$N$ & Complex refractive index, $n - ik$ & dimensionless \\
+$n$ & Real refractive index & dimensionless \\
+$k$ & Extinction coefficient & dimensionless \\
+$M_j$ & Characteristic matrix of layer $j$ & dimensionless \\
+$\delta_j$ & Phase thickness of layer $j$ & radians \\
+$\eta_j$ & Optical admittance of layer $j$ & dimensionless \\
+$\theta_j$ & Propagation angle in layer $j$ & radians, complex \\
+$t_j$ & Physical thickness of layer $j$ & nm \\
+$B, C$ & Normalised field amplitudes & dimensionless, complex \\
+$Y$ & Equivalent surface admittance & dimensionless, complex \\
+$\epsilon$ & Complex dielectric function & dimensionless \\
+$\epsilon_\infty$ & High frequency dielectric constant & dimensionless \\
+$\omega$ & Angular frequency of light & eV \\
+$\omega_p$ & Plasma frequency & eV \\
+$\Gamma$ & Drude damping constant & eV \\
+$f_j$ & Lorentz oscillator strength & dimensionless \\
+$\omega_j$ & Lorentz resonant frequency & eV \\
+$\gamma_j$ & Lorentz damping & eV \\
+$x$ & Stoichiometry in TiN$_x$ & dimensionless \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{Statistics}}\\
+$\mu$ & Mean of a response & response units \\
+$\sigma$ & Standard deviation & response units \\
+USL, LSL & Upper and lower specification limits & response units \\
+\Cpk & Process capability index & dimensionless \\
+$\beta_i$ & Standardised regression coefficient & dimensionless \\
+$z_q$ & Standard score of quantity $q$ & dimensionless \\
+$b_0, b_i, b_{ii}, b_{ij}$ & Response surface coefficients & response units \\
+$R^2$ & Coefficient of determination & 0 to 1 \\
+\bottomrule
+\end{longtable}
+
+\chapter{Reproducing this study}
+
+Every number and every figure in this report is regenerated by a single
+command:
 
 \begin{center}
 \texttt{python scripts/run\_study.py}
 \end{center}
 
-The test suite (\texttt{python -m pytest}, 62 tests) runs in continuous
-integration on Python 3.10--3.12, and the study itself is re-executed on every
-push, so the document and the code cannot drift apart. The design tables are
-also exported as JMP-ready CSV together with a JSL script that reconstructs the
-response-surface analysis, prediction profiler and contour profiler directly.
+The test suite described in Chapter~4 is executed by \texttt{python -m pytest}
+and comprises 62 checks. Both the tests and the full study are re-executed in
+continuous integration on every change, across Python 3.10, 3.11 and 3.12, so
+this document and the code that produced it cannot drift apart.
 
-% =====================================================================
+The design tables are additionally exported in a form suitable for JMP,
+together with a JSL script that reconstructs the response surface analysis, the
+prediction profiler and the contour profiler directly.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Output} & \textbf{Location} \\
+\midrule
+Numerical results, all values & \texttt{outputs/results.json} \\
+Anodizing design table        & \texttt{outputs/anodize\_doe.csv} \\
+PVD design table              & \texttt{outputs/pvd\_doe.csv} \\
+Monte Carlo samples           & \texttt{outputs/*\_montecarlo.csv} \\
+Dye comparison                & \texttt{outputs/anodize\_dye\_robustness.csv} \\
+JMP scripts                   & \texttt{outputs/*.jsl} \\
+Figures used in this report   & \texttt{docs/figures/} \\
+\bottomrule
+\end{tabular}
+\caption{Where each output is written.}
+\end{table}
+
+% ==========================================================================
 \begin{thebibliography}{9}
+\addcontentsline{toc}{chapter}{References}
 \small
 
 \bibitem{sheasby} Sheasby, P.~G. and Pinner, R.
 \emph{The Surface Treatment and Finishing of Aluminium and its Alloys},
-6th ed., ASM International / Finishing Publications, 2001.
+6th ed., ASM International and Finishing Publications, 2001.
 
 \bibitem{macleod} Macleod, H.~A.
 \emph{Thin-Film Optical Filters}, 4th ed., CRC Press, 2010.
@@ -663,7 +1634,7 @@ response-surface analysis, prediction profiler and contour profiler directly.
 \bibitem{sharma} Sharma, G., Wu, W. and Dalal, E.~N.
 ``The CIEDE2000 colour-difference formula: implementation notes, supplementary
 test data, and mathematical observations.''
-\emph{Color Research \& Application} \textbf{30}(1), 21--30, 2005.
+\emph{Color Research and Application} \textbf{30}(1), 21--30, 2005.
 
 \bibitem{wyman} Wyman, C., Sloan, P.-P. and Shirley, P.
 ``Simple analytic approximations to the CIE XYZ colour matching functions.''
@@ -680,6 +1651,10 @@ nitride thin films.''
 \bibitem{cie} CIE.
 \emph{Colorimetry}, 4th ed., CIE 015:2018, Commission Internationale de
 l'\'Eclairage, 2018.
+
+\bibitem{boxbehnken} Box, G.~E.~P. and Behnken, D.~W.
+``Some new three level designs for the study of quantitative variables.''
+\emph{Technometrics} \textbf{2}(4), 455--475, 1960.
 
 \end{thebibliography}
 
