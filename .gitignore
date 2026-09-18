@@ -1,3 +1,4 @@
+# ---- Python ----------------------------------------------------------
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -11,22 +12,29 @@ env/
 .coverage
 htmlcov/
 .ipynb_checkpoints/
+
+# ---- OS / editor -----------------------------------------------------
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
 
-# Generated study artefacts -- regenerate with: python scripts/run_study.py
-outputs/*.csv
-outputs/*.json
-outputs/*.jsl
-docs/figures/*.png
+# ---- Generated bulk data ---------------------------------------------
+# The Monte-Carlo sample dumps are 6000 rows each and carry no browsing
+# value. Regenerate them with: python scripts/run_study.py
+# Everything else in outputs/ is committed deliberately: the DOE design
+# tables, the JMP scripts and results.json are the record of the study.
+outputs/*_montecarlo.csv
 
-# LaTeX build products
+# ---- LaTeX build products --------------------------------------------
+# docs/figures/*.png is NOT ignored. The report will not compile without
+# those figures, and they should be browsable on GitHub.
 docs/*.aux
 docs/*.log
 docs/*.out
 docs/*.toc
+docs/*.lof
+docs/*.lot
 docs/*.bbl
 docs/*.blg
 docs/*.synctex.gz

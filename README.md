@@ -4,12 +4,12 @@ Predicting **colour yield** from **process control limits**, for two industrial
 surface-finishing routes.
 
 A finished aluminium or stainless enclosure has to come out the same colour every
-time. Both common routes to that colour — anodize-and-dye, and PVD thin film —
+time. Both common routes to that colour, anodize-and-dye and PVD thin film,
 end in a spectrum that must sit inside a tight colour tolerance. This project
 asks the question a finishing engineer is actually paid to answer:
 
 > Given how tightly my line holds bath temperature, current density and nitrogen
-> flow, what fraction of parts land inside the colour spec — and which knob do I
+> flow, what fraction of parts land inside the colour spec, and which knob do I
 > tighten first?
 
 One pipeline answers it for both routes:
@@ -17,6 +17,14 @@ One pipeline answers it for both routes:
 ```
 process variation  ->  physics  ->  R(lambda)  ->  CIELAB  ->  dE00  ->  Cpk  ->  yield
 ```
+
+![PVD colour capability](docs/figures/pvd_capability.png)
+
+*A PVD interference stack at realistic production tolerances. Much of the
+distribution (left) sits beyond the colour specification. Nitrogen
+stoichiometry dominates the Pareto (centre), and the colour penalty against
+nitrogen control (right) is steeply quadratic, so drift in either direction is
+punished.*
 
 ---
 
@@ -39,7 +47,7 @@ Run `python scripts/run_study.py` to regenerate every number below.
 |---|---|---|---|
 | TiN stoichiometry (nitrogen flow) | ±0.040 | **±0.0067** | 6.0x tighter |
 | SiO2 overcoat thickness | ±8.0 nm | **±3.0 nm** | 2.7x tighter |
-| TiN thickness | ±20 nm | ±20 nm | unchanged — irrelevant |
+| TiN thickness | ±20 nm | ±20 nm | unchanged (irrelevant) |
 
 TiN thickness does not matter because the film is optically opaque past roughly
 150 nm. Thickness is the intuitive knob and it is the wrong one; composition is
@@ -57,9 +65,11 @@ Identical anodizing process window, identical tolerances, different dye:
 | red | 0.34 | 84.24 % |
 | blue | 0.22 | 77.72 % |
 
+![Colour capability by dye choice](docs/figures/anodize_dye_robustness.png)
+
 A saturated black sits deep in Beer-Lambert saturation, so dye-bath noise barely
 moves it. Pale and chromatic finishes sit on the steep part of the curve. Yield
-swings **22 points** with no process change at all — the decision was made in the
+swings **22 points** with no process change at all. The decision was made in the
 design review, not on the line.
 
 **4. The two routes fail in completely different places.** Anodized black is
@@ -123,7 +133,7 @@ The back-dissolution term is Arrhenius, so it roughly doubles per +10 °C. That
 single coupling is why bath temperature is the dominant cosmetic lever: a warm
 bath both thins the film and opens the pores, and the part comes out lighter and
 duller. The nominal recipe (1.5 A/dm², 30 min, 20 °C, 180 g/L) returns 9.66 µm,
-against the ~10 µm Type II spec — that agreement is the model's calibration
+against the ~10 µm Type II spec. That agreement is the model's calibration
 anchor and is enforced by a test.
 
 **PVD.** Each layer contributes a characteristic matrix; the assembled product
@@ -141,8 +151,8 @@ master by CIEDE2000.
   to within 1e-4.
 - The perfect reflecting diffuser returns exactly L\* = 100, a\* = b\* = 0, and
   the D65 white point matches the CIE values (95.047, 100, 108.883).
-- Reflectance stays in [0, 1] for every stack at every angle — the check that
-  catches the n+ik vs n−ik convention error, which otherwise fails silently by
+- Reflectance stays in [0, 1] for every stack at every angle. This is the check
+  that catches the n+ik vs n−ik convention error, which otherwise fails silently by
   turning absorbing layers into gain media.
 - The response-surface fitter recovers a known quadratic exactly (R² = 1).
 - Anodizing back-dissolution is verified to roughly double per 10 °C.
@@ -151,7 +161,7 @@ master by CIEDE2000.
 
 - **Optical constants are representative literature fits, not measurements of a
   specific supplier's coating.** They reproduce the correct colour family and
-  dispersion shape, which is what a *sensitivity* study needs — the conclusions
+  dispersion shape, which is what a *sensitivity* study needs. The conclusions
   concern how strongly colour responds to process variation, governed by stack
   geometry and the shape of n(lambda). For absolute colour prediction against a
   real master, drop measured n,k into `data/`; see `data/README.md`.
@@ -189,4 +199,4 @@ surface already specified.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).

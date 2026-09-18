@@ -1,0 +1,629 @@
+{
+  "spec": {
+    "dE00_usl": 1.0,
+    "thickness_lsl": 8.0,
+    "thickness_usl": 12.0,
+    "target_cpk": 1.33
+  },
+  "cie_source": "colour-science (tabulated CIE 1931 2-deg observer, CIE D65)",
+  "anodize": {
+    "master_lab": [
+      34.918455715354945,
+      0.01463119931074952,
+      -0.4541529884745432
+    ],
+    "doe_runs": 27,
+    "rsm": {
+      "dE00": {
+        "r2": 0.9323122558504373,
+        "r2_adj": 0.8533432210092808,
+        "rmse": 0.06504825359245704,
+        "coefficients": {
+          "intercept": 5.633958336421604e-17,
+          "current_density": -0.15882728972319618,
+          "bath_temp": -0.028540300610367317,
+          "acid_conc": -0.008211893070025886,
+          "dye_time": -0.07243811285563702,
+          "current_density^2": 0.17704190457325705,
+          "bath_temp^2": 0.11060720557288062,
+          "acid_conc^2": 0.024478564914463624,
+          "dye_time^2": 0.06990122161966604,
+          "current_density*bath_temp": 0.053729391403894454,
+          "current_density*acid_conc": 0.013557508500944872,
+          "current_density*dye_time": 0.1594848053803541,
+          "bath_temp*acid_conc": 0.04289231805803878,
+          "bath_temp*dye_time": 0.02930887149645097,
+          "acid_conc*dye_time": 0.009626107083235361
+        }
+      },
+      "thickness_um": {
+        "r2": 0.9999993707694823,
+        "r2_adj": 0.9999986366672117,
+        "rmse": 0.0018871345697950444,
+        "coefficients": {
+          "intercept": 9.655683538089367,
+          "current_density": 2.2089294366267933,
+          "bath_temp": -0.8429503301896693,
+          "acid_conc": -0.25513946586087166,
+          "dye_time": -2.636779683484747e-16,
+          "current_density^2": 8.881784197001252e-16,
+          "bath_temp^2": -0.04803860344728861,
+          "acid_conc^2": -2.220446049250313e-16,
+          "dye_time^2": 0.0,
+          "current_density*bath_temp": -0.09203872652611395,
+          "current_density*acid_conc": -0.027611617957834872,
+          "current_density*dye_time": -6.106226635438361e-16,
+          "bath_temp*acid_conc": -0.031896391463257706,
+          "bath_temp*dye_time": -6.938893903907228e-18,
+          "acid_conc*dye_time": -1.0824674490095276e-15
+        }
+      }
+    },
+    "capability": {
+      "n": 6000,
+      "overall_yield": 1.0,
+      "responses": {
+        "dE00": {
+          "mean": 0.03178810817792305,
+          "sigma": 0.018937502374472986,
+          "lsl": null,
+          "usl": 1.0,
+          "cpk": 17.04223138258522,
+          "pass_rate": 1.0,
+          "sensitivity": [
+            {
+              "variable": "dye_conc",
+              "beta": -0.2777260800499558,
+              "abs_beta": 0.2777260800499558,
+              "contribution_pct": 31.51863035431332
+            },
+            {
+              "variable": "current_density",
+              "beta": -0.2048996269954954,
+              "abs_beta": 0.2048996269954954,
+              "contribution_pct": 23.25368795701881
+            },
+            {
+              "variable": "dye_time",
+              "beta": -0.09732651968608434,
+              "abs_beta": 0.09732651968608434,
+              "contribution_pct": 11.04541063304429
+            },
+            {
+              "variable": "dye_temp",
+              "beta": -0.08343419189313049,
+              "abs_beta": 0.08343419189313049,
+              "contribution_pct": 9.468795486248192
+            },
+            {
+              "variable": "bath_temp",
+              "beta": -0.08212391351389553,
+              "abs_beta": 0.08212391351389553,
+              "contribution_pct": 9.320094363584712
+            },
+            {
+              "variable": "anodize_time",
+              "beta": -0.07983411733010448,
+              "abs_beta": 0.07983411733010448,
+              "contribution_pct": 9.060229537455868
+            },
+            {
+              "variable": "acid_conc",
+              "beta": -0.03769129769547945,
+              "abs_beta": 0.03769129769547945,
+              "contribution_pct": 4.277517183206243
+            },
+            {
+              "variable": "dye_pH",
+              "beta": -0.01811320165732193,
+              "abs_beta": 0.01811320165732193,
+              "contribution_pct": 2.0556344851285644
+            }
+          ]
+        },
+        "thickness_um": {
+          "mean": 9.652594925368389,
+          "sigma": 0.30655446245573653,
+          "lsl": 8.0,
+          "usl": 12.0,
+          "cpk": 1.7969563082199,
+          "pass_rate": 1.0,
+          "sensitivity": [
+            {
+              "variable": "current_density",
+              "beta": 0.8055214898202082,
+              "abs_beta": 0.8055214898202082,
+              "contribution_pct": 44.74611927737015
+            },
+            {
+              "variable": "bath_temp",
+              "beta": -0.45695840116011505,
+              "abs_beta": 0.45695840116011505,
+              "contribution_pct": 25.38369910859938
+            },
+            {
+              "variable": "anodize_time",
+              "beta": 0.35139435992047857,
+              "abs_beta": 0.35139435992047857,
+              "contribution_pct": 19.519695180207236
+            },
+            {
+              "variable": "acid_conc",
+              "beta": -0.18598502736640332,
+              "abs_beta": 0.18598502736640332,
+              "contribution_pct": 10.331329857133323
+            },
+            {
+              "variable": "dye_temp",
+              "beta": -0.00017264620211133314,
+              "abs_beta": 0.00017264620211133314,
+              "contribution_pct": 0.009590368041184023
+            },
+            {
+              "variable": "dye_conc",
+              "beta": 7.106231897169302e-05,
+              "abs_beta": 7.106231897169302e-05,
+              "contribution_pct": 0.003947458933148537
+            },
+            {
+              "variable": "dye_pH",
+              "beta": -5.935835606682427e-05,
+              "abs_beta": 5.935835606682427e-05,
+              "contribution_pct": 0.0032973125040618796
+            },
+            {
+              "variable": "dye_time",
+              "beta": 4.179060869058393e-05,
+              "abs_beta": 4.179060869058393e-05,
+              "contribution_pct": 0.002321437211513929
+            }
+          ]
+        }
+      }
+    },
+    "sensitivity": [
+      {
+        "variable": "dye_conc",
+        "beta": -0.2777260800499558,
+        "abs_beta": 0.2777260800499558,
+        "contribution_pct": 31.51863035431332
+      },
+      {
+        "variable": "current_density",
+        "beta": -0.2048996269954954,
+        "abs_beta": 0.2048996269954954,
+        "contribution_pct": 23.25368795701881
+      },
+      {
+        "variable": "dye_time",
+        "beta": -0.09732651968608434,
+        "abs_beta": 0.09732651968608434,
+        "contribution_pct": 11.04541063304429
+      },
+      {
+        "variable": "dye_temp",
+        "beta": -0.08343419189313049,
+        "abs_beta": 0.08343419189313049,
+        "contribution_pct": 9.468795486248192
+      },
+      {
+        "variable": "bath_temp",
+        "beta": -0.08212391351389553,
+        "abs_beta": 0.08212391351389553,
+        "contribution_pct": 9.320094363584712
+      },
+      {
+        "variable": "anodize_time",
+        "beta": -0.07983411733010448,
+        "abs_beta": 0.07983411733010448,
+        "contribution_pct": 9.060229537455868
+      },
+      {
+        "variable": "acid_conc",
+        "beta": -0.03769129769547945,
+        "abs_beta": 0.03769129769547945,
+        "contribution_pct": 4.277517183206243
+      },
+      {
+        "variable": "dye_pH",
+        "beta": -0.01811320165732193,
+        "abs_beta": 0.01811320165732193,
+        "contribution_pct": 2.0556344851285644
+      }
+    ],
+    "tightening": [
+      {
+        "round": 0,
+        "cpk": 17.186419872896206,
+        "yield": 1.0,
+        "driver": "dye_conc",
+        "tolerances": {
+          "current_density": 0.1,
+          "bath_temp": 1.5,
+          "acid_conc": 10.0,
+          "anodize_time": 1.0,
+          "dye_time": 1.0,
+          "dye_temp": 2.0,
+          "dye_conc": 0.3,
+          "dye_pH": 0.3
+        }
+      }
+    ],
+    "final_tolerances": {
+      "current_density": 0.1,
+      "bath_temp": 1.5,
+      "acid_conc": 10.0,
+      "anodize_time": 1.0,
+      "dye_time": 1.0,
+      "dye_temp": 2.0,
+      "dye_conc": 0.3,
+      "dye_pH": 0.3
+    },
+    "dye_robustness": [
+      {
+        "dye": "black",
+        "L": 34.918455715354945,
+        "a": 0.01463119931074952,
+        "b": -0.4541529884745432,
+        "mean_dE00": 0.03175254757591285,
+        "sigma_dE00": 0.01934863832152303,
+        "cpk": 16.680716515797887,
+        "yield_pct": 100.0
+      },
+      {
+        "dye": "graphite grey",
+        "L": 35.11257500631555,
+        "a": 0.4668354053071755,
+        "b": -1.3199919754452005,
+        "mean_dE00": 0.20318286647071035,
+        "sigma_dE00": 0.15767308903881375,
+        "cpk": 1.6845342017181306,
+        "yield_pct": 99.96000000000001
+      },
+      {
+        "dye": "blue",
+        "L": 43.66572796396565,
+        "a": 36.86382546565403,
+        "b": -69.91091848113058,
+        "mean_dE00": 0.6677537916645098,
+        "sigma_dE00": 0.511888028057751,
+        "cpk": 0.21635344067733395,
+        "yield_pct": 77.72
+      },
+      {
+        "dye": "red",
+        "L": 41.08352986773054,
+        "a": 35.661195095020915,
+        "b": -8.70105637668168,
+        "mean_dE00": 0.5655848423210919,
+        "sigma_dE00": 0.42672713258200556,
+        "cpk": 0.3393387518704552,
+        "yield_pct": 84.24000000000001
+      },
+      {
+        "dye": "gold/bronze",
+        "L": 81.15184892490036,
+        "a": 16.488274722282203,
+        "b": 75.20545872973052,
+        "mean_dE00": 0.5488278422012851,
+        "sigma_dE00": 0.41488806988205784,
+        "cpk": 0.3624850415896282,
+        "yield_pct": 85.2
+      }
+    ],
+    "jmp": {
+      "csv": "C:\\Users\\jnana\\Downloads\\cosmetic-finish-capability\\outputs\\anodize_doe.csv",
+      "jsl": "C:\\Users\\jnana\\Downloads\\cosmetic-finish-capability\\outputs\\anodize_doe.jsl",
+      "runs": 27
+    }
+  },
+  "pvd": {
+    "master_lab": [
+      75.81008239599531,
+      3.7097653482214277,
+      48.87599557715285
+    ],
+    "master_stack": "air / SiO2 90 nm / TiN 300 nm / Ti 80 nm / SS304",
+    "doe_runs": 15,
+    "rsm": {
+      "dE00": {
+        "r2": 0.9959219619967655,
+        "r2_adj": 0.9885814935909435,
+        "rmse": 0.184883550057514,
+        "coefficients": {
+          "intercept": 1.6460359871620088e-16,
+          "stoichiometry": 0.5484948774607172,
+          "overcoat_nm": -0.14099457397977666,
+          "tin_nm": -0.00010585989534384055,
+          "stoichiometry^2": 2.3481298680699183,
+          "overcoat_nm^2": 1.0180052974733316,
+          "tin_nm^2": 0.9638431409839731,
+          "stoichiometry*overcoat_nm": -1.8878915991900427,
+          "stoichiometry*tin_nm": -0.00015000581469259977,
+          "overcoat_nm*tin_nm": 0.0002706496657229329
+        }
+      },
+      "flop45": {
+        "r2": 0.9995305531839516,
+        "r2_adj": 0.9986855489150643,
+        "rmse": 0.008266013589313927,
+        "coefficients": {
+          "intercept": 2.879591726725305,
+          "stoichiometry": 0.19076132414235103,
+          "overcoat_nm": -0.22189306914305396,
+          "tin_nm": 8.687645370432373e-05,
+          "stoichiometry^2": 0.048123454779413516,
+          "overcoat_nm^2": -0.09163276666806584,
+          "tin_nm^2": 0.0013468662304931267,
+          "stoichiometry*overcoat_nm": 0.0009025412052336984,
+          "stoichiometry*tin_nm": 0.00013856113138186257,
+          "overcoat_nm*tin_nm": -5.767740479080581e-05
+        }
+      }
+    },
+    "capability": {
+      "n": 6000,
+      "overall_yield": 0.564,
+      "responses": {
+        "dE00": {
+          "mean": 1.042490137238009,
+          "sigma": 0.7732799120547575,
+          "lsl": null,
+          "usl": 1.0,
+          "cpk": -0.018315979580668877,
+          "pass_rate": 0.564,
+          "sensitivity": [
+            {
+              "variable": "stoichiometry",
+              "beta": 0.1371599381894281,
+              "abs_beta": 0.1371599381894281,
+              "contribution_pct": 69.77598561637568
+            },
+            {
+              "variable": "overcoat_nm",
+              "beta": -0.05457453173674051,
+              "abs_beta": 0.05457453173674051,
+              "contribution_pct": 27.76314856765336
+            },
+            {
+              "variable": "tin_nm",
+              "beta": -0.00483736919270171,
+              "abs_beta": 0.00483736919270171,
+              "contribution_pct": 2.4608658159709593
+            }
+          ]
+        }
+      }
+    },
+    "sensitivity": [
+      {
+        "variable": "stoichiometry",
+        "beta": 0.1371599381894281,
+        "abs_beta": 0.1371599381894281,
+        "contribution_pct": 69.77598561637568
+      },
+      {
+        "variable": "overcoat_nm",
+        "beta": -0.05457453173674051,
+        "abs_beta": 0.05457453173674051,
+        "contribution_pct": 27.76314856765336
+      },
+      {
+        "variable": "tin_nm",
+        "beta": -0.00483736919270171,
+        "abs_beta": 0.00483736919270171,
+        "contribution_pct": 2.4608658159709593
+      }
+    ],
+    "tightening": [
+      {
+        "round": 0,
+        "cpk": -0.013202973570699205,
+        "yield": 0.5713333333333334,
+        "driver": "stoichiometry",
+        "tolerances": {
+          "stoichiometry": 0.04,
+          "overcoat_nm": 8.0,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 1,
+        "cpk": 0.04268688707523118,
+        "yield": 0.6206666666666667,
+        "driver": "stoichiometry",
+        "tolerances": {
+          "stoichiometry": 0.034,
+          "overcoat_nm": 8.0,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 2,
+        "cpk": 0.079635381170159,
+        "yield": 0.6433333333333333,
+        "driver": "stoichiometry",
+        "tolerances": {
+          "stoichiometry": 0.028900000000000002,
+          "overcoat_nm": 8.0,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 3,
+        "cpk": 0.1297440381312948,
+        "yield": 0.7186666666666667,
+        "driver": "overcoat_nm",
+        "tolerances": {
+          "stoichiometry": 0.024565,
+          "overcoat_nm": 8.0,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 4,
+        "cpk": 0.1836662174105037,
+        "yield": 0.7453333333333333,
+        "driver": "stoichiometry",
+        "tolerances": {
+          "stoichiometry": 0.024565,
+          "overcoat_nm": 6.8,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 5,
+        "cpk": 0.2548904453979497,
+        "yield": 0.78,
+        "driver": "stoichiometry",
+        "tolerances": {
+          "stoichiometry": 0.02088025,
+          "overcoat_nm": 6.8,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 6,
+        "cpk": 0.2972868724806839,
+        "yield": 0.8213333333333334,
+        "driver": "overcoat_nm",
+        "tolerances": {
+          "stoichiometry": 0.0177482125,
+          "overcoat_nm": 6.8,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 7,
+        "cpk": 0.3904554944571444,
+        "yield": 0.8613333333333333,
+        "driver": "stoichiometry",
+        "tolerances": {
+          "stoichiometry": 0.0177482125,
+          "overcoat_nm": 5.779999999999999,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 8,
+        "cpk": 0.4369377299513832,
+        "yield": 0.8906666666666667,
+        "driver": "stoichiometry",
+        "tolerances": {
+          "stoichiometry": 0.015085980624999999,
+          "overcoat_nm": 5.779999999999999,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 9,
+        "cpk": 0.514400953681579,
+        "yield": 0.9206666666666666,
+        "driver": "overcoat_nm",
+        "tolerances": {
+          "stoichiometry": 0.012823083531249998,
+          "overcoat_nm": 5.779999999999999,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 10,
+        "cpk": 0.5912977439612459,
+        "yield": 0.936,
+        "driver": "stoichiometry",
+        "tolerances": {
+          "stoichiometry": 0.012823083531249998,
+          "overcoat_nm": 4.912999999999999,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 11,
+        "cpk": 0.6649353807569344,
+        "yield": 0.9566666666666667,
+        "driver": "stoichiometry",
+        "tolerances": {
+          "stoichiometry": 0.010899621001562498,
+          "overcoat_nm": 4.912999999999999,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 12,
+        "cpk": 0.7662802924271331,
+        "yield": 0.9713333333333334,
+        "driver": "overcoat_nm",
+        "tolerances": {
+          "stoichiometry": 0.009264677851328123,
+          "overcoat_nm": 4.912999999999999,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 13,
+        "cpk": 0.8670845215126721,
+        "yield": 0.9853333333333333,
+        "driver": "overcoat_nm",
+        "tolerances": {
+          "stoichiometry": 0.009264677851328123,
+          "overcoat_nm": 4.176049999999999,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 14,
+        "cpk": 1.0162562794122012,
+        "yield": 0.9893333333333333,
+        "driver": "stoichiometry",
+        "tolerances": {
+          "stoichiometry": 0.009264677851328123,
+          "overcoat_nm": 3.549642499999999,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 15,
+        "cpk": 1.10974103024773,
+        "yield": 0.9926666666666667,
+        "driver": "stoichiometry",
+        "tolerances": {
+          "stoichiometry": 0.007874976173628905,
+          "overcoat_nm": 3.549642499999999,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 16,
+        "cpk": 1.173474030987918,
+        "yield": 0.996,
+        "driver": "overcoat_nm",
+        "tolerances": {
+          "stoichiometry": 0.00669372974758457,
+          "overcoat_nm": 3.549642499999999,
+          "tin_nm": 20.0
+        }
+      },
+      {
+        "round": 17,
+        "cpk": 1.3316600235743088,
+        "yield": 0.998,
+        "driver": "stoichiometry",
+        "tolerances": {
+          "stoichiometry": 0.00669372974758457,
+          "overcoat_nm": 3.017196124999999,
+          "tin_nm": 20.0
+        }
+      }
+    ],
+    "final_tolerances": {
+      "stoichiometry": 0.00669372974758457,
+      "overcoat_nm": 3.017196124999999,
+      "tin_nm": 20.0
+    },
+    "jmp": {
+      "csv": "C:\\Users\\jnana\\Downloads\\cosmetic-finish-capability\\outputs\\pvd_doe.csv",
+      "jsl": "C:\\Users\\jnana\\Downloads\\cosmetic-finish-capability\\outputs\\pvd_doe.jsl",
+      "runs": 15
+    }
+  }
+}
