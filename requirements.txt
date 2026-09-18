@@ -1,0 +1,17 @@
+# Core physics + analysis
+numpy>=1.24
+scipy>=1.10
+pandas>=2.0
+matplotlib>=3.7
+plotly>=5.15
+
+# Dashboard
+streamlit>=1.30
+
+# Tabulated CIE 1931 colour-matching functions and D65.
+# Optional: finishsim falls back to the Wyman et al. (2013) analytic fit
+# if this is absent, and reports which path it took via colourimetry.CMF_SOURCE.
+colour-science>=0.4.3
+
+# Tests
+pytest>=7.4

@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finishsim"
+version = "1.0.0"
+description = "Physics-based cosmetic finish process-capability simulator for anodizing and PVD thin-film coatings"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Jnanadyuti Patra" }]
+keywords = [
+    "anodizing", "PVD", "thin-film", "colourimetry", "CIEDE2000",
+    "process-capability", "design-of-experiments", "surface-finishing",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Manufacturing",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+    "plotly>=5.15",
+]
+
+[project.optional-dependencies]
+app = ["streamlit>=1.30"]
+colour = ["colour-science>=0.4.3"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.5"]
+all = [
+    "streamlit>=1.30",
+    "colour-science>=0.4.3",
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.5",
+]
+
+[project.urls]
+Repository = "https://github.com/jnanadyuti/cosmetic-finish-capability"
+
+[tool.setuptools]
+packages = ["finishsim"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint.per-file-ignores]
+# Must insert sys.path before importing the package when run from a checkout.
+"scripts/run_study.py" = ["E402"]
+# Streamlit scripts define closures after widget state exists; that is the idiom.
+"streamlit_app.py" = ["E731"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E741", "B905"]  # B905: zip strict= is noise here; all zips are known-equal-length

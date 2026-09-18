@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "finishsim: a cosmetic finish process-capability simulator"
+abstract: >-
+  Couples Type II sulfuric anodizing kinetics and transfer-matrix thin-film
+  optics to a CIE colourimetric pipeline, then propagates process variation
+  through to CIEDE2000 colour difference, capability indices and yield.
+authors:
+  - family-names: Patra
+    given-names: Jnanadyuti
+version: 1.0.0
+license: MIT
+date-released: 2026-09-18
+keywords:
+  - anodizing
+  - physical vapour deposition
+  - thin films
+  - colourimetry
+  - process capability
+  - design of experiments
