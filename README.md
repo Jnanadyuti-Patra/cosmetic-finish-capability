@@ -1,5 +1,9 @@
 # Cosmetic Finish Process-Capability Simulator
 
+[![tests](https://github.com/Jnanadyuti-Patra/cosmetic-finish-capability/actions/workflows/tests.yml/badge.svg)](https://github.com/Jnanadyuti-Patra/cosmetic-finish-capability/actions/workflows/tests.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 Predicting **colour yield** from **process control limits**, for two industrial
 surface-finishing routes.
 
